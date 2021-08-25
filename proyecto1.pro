@@ -8,6 +8,7 @@ CONFIG -= app_bundle
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        estructuras.cpp \
         main.cpp \
         obj_cat.cpp \
         obj_chgrp.cpp \
@@ -51,6 +52,7 @@ DISTFILES += \
     parser.y
 
 HEADERS += \
+    estructuras.h \
     obj_cat.h \
     obj_chgrp.h \
     obj_chmod.h \

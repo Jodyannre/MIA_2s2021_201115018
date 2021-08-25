@@ -5,6 +5,7 @@
 #include <parser.h>  // Nuestro parser
 #include <scanner.h>  // Nuestro scanner
 #include <QTextStream>
+#include <obj_mkdisk.h>
 using namespace std;
 extern int yyparse(); //
 //static QList<discosmontados> discosenmemoria
@@ -17,6 +18,79 @@ int main(int argc, char *argv[])
 
 
 
+    string path = "/home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    FILE *disco;
+    char unidades,tipo;
+    int particion_size;
+    //Buscar el disco y verificar si existe
+    disco =fopen(path.c_str(),"rb+");
+
+    //Buscar la posicion del mbr del disco
+    fseek(disco, 0, SEEK_SET);
+    //MBR para copiar temporalmente el mbr que contiene el disco
+    MBR mbr_temp;
+    EBR ebr_temp;
+    EBR ebr_sig;
+    EBR ebr_sig_sig;
+    //Copiar el mbr del disco al mbr temporal
+    fread(&mbr_temp,sizeof(MBR),1,disco);
+    fseek(disco,mbr_temp.mbr_partitions[0].part_start, SEEK_SET);
+    fread(&ebr_temp,sizeof(EBR),1,disco);
+    fseek(disco,ebr_temp.part_next, SEEK_SET);
+    fread(&ebr_sig,sizeof(EBR),1,disco);
+    fseek(disco,ebr_sig.part_next, SEEK_SET);
+    fread(&ebr_sig_sig,sizeof(EBR),1,disco);
+
+    cout<<"Resultados"<<endl;
+    cout<<"------------------------------------------"<<endl;
+    cout<<mbr_temp.disk_fit<<endl;
+    cout<<mbr_temp.mbr_disk_signature<<endl;
+    cout<<mbr_temp.mbr_tamano<<endl;
+    cout<<"------------------------------------------"<<endl;
+    cout<<mbr_temp.mbr_partitions[0].part_status<<endl;
+    cout<<mbr_temp.mbr_partitions[0].part_name<<endl;
+    cout<<mbr_temp.mbr_partitions[0].part_fit<<endl;
+    cout<<mbr_temp.mbr_partitions[0].part_start<<endl;
+    cout<<"------------------------------------------"<<endl;
+    cout<<mbr_temp.mbr_partitions[1].part_status<<endl;
+    cout<<mbr_temp.mbr_partitions[1].part_name<<endl;
+    cout<<mbr_temp.mbr_partitions[1].part_fit<<endl;
+    cout<<mbr_temp.mbr_partitions[1].part_start<<endl;
+    cout<<"------------------------------------------"<<endl;
+    cout<<mbr_temp.mbr_partitions[2].part_status<<endl;
+    cout<<mbr_temp.mbr_partitions[2].part_name<<endl;
+    cout<<mbr_temp.mbr_partitions[2].part_fit<<endl;
+    cout<<mbr_temp.mbr_partitions[2].part_start<<endl;
+    cout<<"------------------------------------------"<<endl;
+    cout<<mbr_temp.mbr_partitions[3].part_status<<endl;
+    cout<<mbr_temp.mbr_partitions[3].part_name<<endl;
+    cout<<mbr_temp.mbr_partitions[3].part_fit<<endl;
+    cout<<mbr_temp.mbr_partitions[3].part_start<<endl;
+    cout<<"------------------------------------------"<<endl;
+    cout<<ebr_temp.part_name<<endl;
+    cout<<ebr_temp.part_next<<endl;
+    cout<<ebr_temp.part_fit<<endl;
+    cout<<ebr_temp.part_status<<endl;
+    cout<<ebr_temp.part_start<<endl;
+    cout<<"------------------------------------------"<<endl;
+    cout<<ebr_sig.part_name<<endl;
+    cout<<ebr_sig.part_next<<endl;
+    cout<<ebr_sig.part_fit<<endl;
+    cout<<ebr_sig.part_status<<endl;
+    cout<<ebr_sig.part_start<<endl;
+    cout<<"------------------------------------------"<<endl;
+    cout<<ebr_sig_sig.part_name<<endl;
+    cout<<ebr_sig_sig.part_next<<endl;
+    cout<<ebr_sig_sig.part_fit<<endl;
+    cout<<ebr_sig_sig.part_status<<endl;
+    cout<<ebr_sig_sig.part_start<<endl;
+    return 1;
+
+
+
+
+
+
     string lista ="";
     for (int i=1; i < argc; i++){
         lista += argv[i];
@@ -26,6 +100,11 @@ int main(int argc, char *argv[])
     string p="------------------------------Comando ingresado------------------------------\n";
     //QTextStream qtin(stdin);
     QString line;
+    //lista = "mkdisk -size = 1 -u = m -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista ="fdisk -size = 5 -name = particion3 -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista ="fdisk -delete = fast -name=particion9 -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista ="fdisk -size = 5 -name = particion3 -type=E -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista ="fdisk -size = 3 -name = particion13 -type=L -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
 
     line = QString::fromStdString(lista);
     if(line!="salir"){

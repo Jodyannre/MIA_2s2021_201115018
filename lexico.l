@@ -78,6 +78,11 @@ cadena \"(([^\"]|\\\")*[^\\])?\"
 "U"         {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pU;}
 "R"			{columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pR;}
 "P"			{columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pP;}
+"E"         {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pE;}
+"L"         {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pL;}
+"K"         {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pK;}
+"M"         {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pM;}
+"B"         {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pB;}
 "PATH"      {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pPath;}
 "TYPE"		{columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return ptype;}
 "DELETE"	{columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pdelete;}
@@ -102,7 +107,8 @@ cadena \"(([^\"]|\\\")*[^\\])?\"
 "FILE"      {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return pfile;}
 "RECOVERY"  {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return precovery;}
 "LOSS"      {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return ploss;}
-
+"FAST"      {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return fast;}
+"FULL"      {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return full;}
 
 {entero} {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext); return entero;}
 {cadena} {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext); return cadena;}

@@ -6,6 +6,7 @@
 #include <iostream>
 #include "obj_mkdisk.h"
 #include "obj_rmdisk.h"
+#include "obj_fdisk.h"
 #include "obj_cat.h"
 #include "obj_chgrp.h"
 #include "obj_chmod.h"
@@ -86,6 +87,7 @@ class obj_touch *touch;
 class obj_umount *umount;
 
 int numero;
+char caracter[1];
 }
 //TERMINALES DE TIPO TEXT, SON STRINGS
 
@@ -121,6 +123,11 @@ int numero;
 %token<TEXT> pU;
 %token<TEXT> pR;
 %token<TEXT> pP;
+%token<TEXT> pE;
+%token<TEXT> pL;
+%token<TEXT> pK;
+%token<TEXT> pM;
+%token<TEXT> pB;
 %token<TEXT> pPath;
 %token<TEXT> ptype;
 %token<TEXT> pdelete;
@@ -174,12 +181,18 @@ int numero;
 %token<TEXT> ruta;
 %token<TEXT> rutacualquiera;
 %token<TEXT> tpath;
+%token<TEXT> fast;
+%token<TEXT> full;
 
 
-%type<mkdisk>   COMANDO_MKDISK; // lista de instrucciones
-%type<numero>   COMANDO_AJUSTE;
-%type<rmdisk>   COMANDO_RMDISK;
-//%type<fdisk>    COMANDO_FDISK;
+%type<mkdisk>       COMANDO_MKDISK; // lista de instrucciones
+//%type<TEXT>         COMANDO_MKDISK_UNIDAD;
+%type<numero>       COMANDO_AJUSTE;
+%type<rmdisk>       COMANDO_RMDISK;
+%type<fdisk>        COMANDO_FDISK;
+//%type<TEXT>         TIPO_PARTICION;
+//%type<TEXT>         UNIDAD_PARTICION;
+
 //%type<exec>     COMANDO_EXEC;
 //%type<mkfs>     COMANDO_MKFS;
 //%type<mount>    COMANDO_MOUNT;
@@ -221,9 +234,9 @@ INICIO : LEXPA { }
 ;
 //\0
 LEXPA
-:       pmkdisk     COMANDO_MKDISK {$2->ejecutar();}
-|       prmdisk     COMANDO_RMDISK {$2->ejecutar();}
-//|       pfdisk      COMANDO_FDISK
+:       pmkdisk     COMANDO_MKDISK  {$2->ejecutar();}
+|       prmdisk     COMANDO_RMDISK  {$2->ejecutar();}
+|       pfdisk      COMANDO_FDISK   {$2->ejecutar();}
 //|       pmount      COMANDO_MOUNT
 //|       pumount     COMANDO_UMOUNT
 //|       pmkfs       COMANDO_MKFS
@@ -267,46 +280,99 @@ LEXPA
 COMANDO_MKDISK
 :	COMANDO_MKDISK menos psize igual entero {int tam=atoi($5); $1->size=tam;  $$=$1;}
 |	menos psize igual entero {int tam=atoi($4); obj_mkdisk *disco=new obj_mkdisk(); disco->size=tam; $$=disco;}
-|	COMANDO_MKDISK menos pF igual COMANDO_AJUSTE {$1->f = $5;}
+|	COMANDO_MKDISK menos pF igual COMANDO_AJUSTE {$1->f =$5; $$=$1;}
 |	menos pF igual COMANDO_AJUSTE {int ajuste=$4; obj_mkdisk *disco=new obj_mkdisk(); disco->f=ajuste;  $$=disco;}
-|	COMANDO_MKDISK menos pPath igual tpath {$1->path = $5;}
-|	COMANDO_MKDISK menos pPath igual cadena {$1->path = $5;}
+|	COMANDO_MKDISK menos pPath igual tpath {$1->path = $5;$$=$1;}
+|	COMANDO_MKDISK menos pPath igual cadena {$1->path = $5; $$=$1;}
 |	menos pPath igual tpath {obj_mkdisk *disco=new obj_mkdisk(); disco->path=$4;  $$=disco;}
 |	menos pPath igual cadena {obj_mkdisk *disco=new obj_mkdisk(); disco->path=$4;  $$=disco;}
-|	COMANDO_MKDISK menos pU igual identificador {$1->u = $5;}
-|	menos pU igual identificador {obj_mkdisk *disco=new obj_mkdisk(); disco->u=$4;  $$=disco;}
+
+
+|	COMANDO_MKDISK menos pU igual pK {$1->u = $5; $$=$1;}
+|	COMANDO_MKDISK menos pU igual pM {$1->u = $5; $$=$1;}
+
+|	menos pU igual pK {obj_mkdisk *disco=new obj_mkdisk(); disco->u=$4;  $$=disco;}
+|	menos pU igual pM {obj_mkdisk *disco=new obj_mkdisk(); disco->u=$4;  $$=disco;}
 ;
 
 
 COMANDO_AJUSTE
-:	pFf {int tipo=1; $$=tipo;}
-|	pBf {int tipo=2; $$=tipo;}
-|	pWf {int tipo=3; $$=tipo;}
+:	pBf {int tipo=0; $$=tipo;}
+|	pFf {int tipo=1; $$=tipo;}
+|	pWf {int tipo=2; $$=tipo;}
 ;
+
+/*
+COMANDO_MKDISK_UNIDAD
+:   pK  {$$="K";}
+|   pM  {$$="M";}
+;
+*/
 
 
 COMANDO_RMDISK
 :   menos pPath igual tpath {obj_rmdisk *disco=new obj_rmdisk();disco->path=$4; $$=disco;}
 
-/*
+
 COMANDO_FDISK
-:   COMANDO_FDISK menos psize igual entero {}
-|   menos psize igual entero {}
-|   COMANDO_FDISK menos pU igual identificador {}
-|   menos pU igual identificador {}
-|   COMANDO_FDISK menos pPath igual identificador {}
-|   menos pPath igual identificador {}
-|   COMANDO_FDISK menos ptype igual identificador {}
-|   menos ptype igual identificador {}
-|   COMANDO_FDISK menos pF igual COMANDO_AJUSTE {}
-|   menos pF igual COMANDO_AJUSTE {}
-|   COMANDO_FDISK menos pdelete {}
-|   menos pdelete {}
+:   COMANDO_FDISK menos psize igual entero {int tam =atoi($5); $1->size = tam;$$=$1;}
+|   menos psize igual entero {obj_fdisk *disco=new obj_fdisk(); int tam =atoi($4); disco->size = tam; $$ = disco;}
+
+|   COMANDO_FDISK menos pU igual pB {$1->u = 0; $$ = $1;}
+|   COMANDO_FDISK menos pU igual pK {$1->u = 1; $$ = $1;}
+|   COMANDO_FDISK menos pU igual pM {$1->u = 2; $$ = $1;}
+
+|   menos pU igual pB {obj_fdisk *disco=new obj_fdisk();disco->u = 0;$$=disco;}
+|   menos pU igual pK {obj_fdisk *disco=new obj_fdisk();disco->u = 1;$$=disco;}
+|   menos pU igual pM {obj_fdisk *disco=new obj_fdisk();disco->u = 2;$$=disco;}
+
+|   COMANDO_FDISK menos pPath igual tpath {$1->path = $5; $$ = $1;}
+|   menos pPath igual tpath {obj_fdisk *disco=new obj_fdisk(); disco->path =$4;$$ = disco;}
+
+
+|   COMANDO_FDISK menos ptype igual pP {$1->type = 0; $$ = $1;}
+|   COMANDO_FDISK menos ptype igual pE {$1->type = 1; $$ = $1;}
+|   COMANDO_FDISK menos ptype igual pL {$1->type = 2; $$ = $1;}
+
+|   menos ptype igual pP {obj_fdisk *disco=new obj_fdisk(); disco->type=0; $$ =disco;}
+|   menos ptype igual pE {obj_fdisk *disco=new obj_fdisk(); disco->type=1; $$ =disco;}
+|   menos ptype igual pL {obj_fdisk *disco=new obj_fdisk(); disco->type=2; $$ =disco;}
+
+
+|   COMANDO_FDISK menos pF igual COMANDO_AJUSTE {$1->f = $5; $$ = $1;}
+|   menos pF igual COMANDO_AJUSTE {obj_fdisk *disco=new obj_fdisk(); disco->f =$4;$$=disco;}
+
+|   COMANDO_FDISK menos pdelete igual fast {$1->eliminar = 1;$1->tipo_eliminar =0;$$=$1;}
+|   menos pdelete igual fast {obj_fdisk *disco=new obj_fdisk(); disco->eliminar = 1;disco->tipo_eliminar =0; $$=disco;}
+
+|   COMANDO_FDISK menos pdelete igual full {$1->eliminar = 1;$1->tipo_eliminar =1;$$=$1;}
+|   menos pdelete igual full {obj_fdisk *disco=new obj_fdisk(); disco->eliminar = 1;disco->tipo_eliminar =1; $$=disco;}
+
+
+|   COMANDO_FDISK menos pname igual identificador {$1->name = $5; $$=$1;}
+|   menos pname igual identificador {obj_fdisk *disco=new obj_fdisk(); disco->name = $4; $$=disco;}
 ;
 
+
+/*
+TIPO_PARTICION
+:   pP {$$ = 'P';}
+|   pE {$$ = 'E';}
+|   pL {$$ = 'L';}
+;
+*/
+
+/*
+UNIDAD_PARTICION
+:   pB  {$$='B';}
+|   pK  {$$='K';}
+|   pM  {$$='M';}
+;
+*/
+/*
 COMANDO_MOUNT
-:   COMANDO_MOUNT menos pPath igual identificador {}
-|   menos pPath igual identificador {}
+:   COMANDO_MOUNT menos pPath igual tpath {}
+|   menos pPath igual tpath {}
 |   COMANDO_MOUNT menos pname igual identificador {}
 |   menos pname igual identificador {}
 ;
