@@ -36,13 +36,14 @@ public:
     int calcularPartStart(int size, int tipo_particion);
     EBR calcularPartStartLogica(int size);
     void ordenarParticiones();
-    int eliminarParticion();
+    int eliminarParticion(int size);
     int eliminarParticionLogica();
     int agregarEspacio(int size,int tipoParticion);
     int agregarEspacioLogica(int size);
     int buscarExtendida();
     int addParticionLogica(int size);
     void cargarEBR();
+    int getUltimaLogica();
     string obtenerNombre(int particion, int extendida);
 
 };

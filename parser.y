@@ -192,11 +192,12 @@ char caracter[1];
 %type<fdisk>        COMANDO_FDISK;
 //%type<TEXT>         TIPO_PARTICION;
 //%type<TEXT>         UNIDAD_PARTICION;
-
+%type<mount>        COMANDO_MOUNT;
+%type<umount>       COMANDO_UMOUNT;
 //%type<exec>     COMANDO_EXEC;
 //%type<mkfs>     COMANDO_MKFS;
-//%type<mount>    COMANDO_MOUNT;
-//%type<umount>   COMANDO_UMOUNT;
+
+
 //%type<rep>      COMANDO_REP;
 
 //%type<cat>      COMANDO_CAT
@@ -237,8 +238,8 @@ LEXPA
 :       pmkdisk     COMANDO_MKDISK  {$2->ejecutar();}
 |       prmdisk     COMANDO_RMDISK  {$2->ejecutar();}
 |       pfdisk      COMANDO_FDISK   {$2->ejecutar();}
-//|       pmount      COMANDO_MOUNT
-//|       pumount     COMANDO_UMOUNT
+|       pmount      COMANDO_MOUNT   {$2->ejecutar();}
+|       pumount     COMANDO_UMOUNT  {$2->ejecutar();}
 //|       pmkfs       COMANDO_MKFS
 //|       pexec       COMANDO_EXEC
 //|       prep        COMANDO_REP
@@ -351,6 +352,12 @@ COMANDO_FDISK
 
 |   COMANDO_FDISK menos pname igual identificador {$1->name = $5; $$=$1;}
 |   menos pname igual identificador {obj_fdisk *disco=new obj_fdisk(); disco->name = $4; $$=disco;}
+
+|   COMANDO_FDISK menos padd igual entero {$1->size = atoi($5);$1->add = 1; $$=$1;}
+|   menos padd igual entero {obj_fdisk *disco=new obj_fdisk(); disco->size = atoi($4);disco->add = 1; $$=disco;}
+
+|   COMANDO_FDISK menos padd igual menos entero {int num =atoi($6); num = num*-1; $1->size = num;$1->add = 1; $$=$1;}
+|   menos padd igual menos entero {obj_fdisk *disco=new obj_fdisk();int num =atoi($5); num = num*-1; disco->size = num; disco->add = 1; $$=disco;}
 ;
 
 
@@ -369,19 +376,20 @@ UNIDAD_PARTICION
 |   pM  {$$='M';}
 ;
 */
-/*
+
 COMANDO_MOUNT
-:   COMANDO_MOUNT menos pPath igual tpath {}
-|   menos pPath igual tpath {}
-|   COMANDO_MOUNT menos pname igual identificador {}
-|   menos pname igual identificador {}
+:   COMANDO_MOUNT menos pPath igual tpath {$1->path = $5; $$ = $1;}
+|   menos pPath igual tpath {obj_mount *disco=new obj_mount(); disco->path = $4; $$ = disco;}
+|   COMANDO_MOUNT menos pname igual identificador {$1->name = $5; $$ = $1;}
+|   menos pname igual identificador {obj_mount *disco=new obj_mount(); disco->name = $4; $$ = disco;}
 ;
+
 
 COMANDO_UMOUNT
-:   menos pid igual identificador {}
+:   menos pid igual identificador {obj_umount *disco=new obj_umount(); disco->id=$4; $$ = disco;}
 ;
 
-
+/*
 COMANDO_MKFS
 :   COMANDO_MKFS menos pid igual identificador {}
 |   menos pid igual identificador {}

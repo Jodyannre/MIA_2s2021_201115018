@@ -174,7 +174,7 @@ void obj_mkdisk::verificarRuta(string ruta){
         }
         else
         {
-            qDebug() << path << " already exists";
+            //qDebug() << path << " already exists";
      }
 
 }

@@ -29,6 +29,7 @@ void obj_fdisk::ejecutar(){
     //Si el disco no existe retornara un null
     if (disco == NULL){
         cout<<"Error, el disco no existe o la ruta es incorrecta"<<endl;
+        fclose(disco);
         return;
     }
 
@@ -51,15 +52,18 @@ void obj_fdisk::ejecutar(){
 
     if(this->size == -1 && this->eliminar != true){
         printf("Error, no se ha ingresado un size para la particion. \n");
+        fclose(disco);
         return;
     }
 
     if(this->path == ""){
         printf("Error, no se ha ingresado una ruta valida. \n");
+        fclose(disco);
         return;
     }
     if(this->name == ""){
         printf("Error, no se ha ingresado un nombre valido. \n");
+        fclose(disco);
         return;
     }
 
@@ -149,13 +153,17 @@ void obj_fdisk::ejecutar(){
         //Eliminar o agregar
 
         if (this->eliminar == true){
-            int resultado = this->eliminarParticion();
+            int resultado = this->eliminarParticion(particion_size);
+            fclose(disco);
             return;
         }else{
             int resultado = this->agregarEspacio(particion_size,this->type);
             if (resultado == -1){
+                fclose(disco);
                 return;
             }
+            fclose(disco);
+            return;
         }
 
     }else if (this->type == 0){
@@ -180,6 +188,7 @@ void obj_fdisk::ejecutar(){
                 this->mbr_temp.mbr_partitions[particion_pos].part_start=partStart;
             }else{
                 printf("Error, no hay espacio disponible para crear la particion del tamano solicitado.");
+                fclose(disco);
                 return;
             }
             //Crear particiones primarias
@@ -189,8 +198,19 @@ void obj_fdisk::ejecutar(){
             strcpy(this->mbr_temp.mbr_partitions[particion_pos].part_name,this->name.c_str());
             this->mbr_temp.mbr_partitions[particion_pos].part_size = particion_size;
             this->mbr_temp.mbr_partitions[particion_pos].part_status='1';
+
+            //Verificar si hay suficiente espacio para crearla
+            if (this->mbr_temp.mbr_partitions[particion_pos].part_start + this->mbr_temp.mbr_partitions[particion_pos].part_size
+                    > this->mbr_temp.mbr_tamano){
+                cout<<"Error, la particion no se puede crear ya que excede la capacidad del disco.";
+                fclose(disco);
+                return;
+            }
+
         }else{
-            printf("No se puede crear mas particiones.");
+            printf("Error, no se puede crear mas particiones.");
+            fclose(disco);
+            return;
         }
     }else if (this->type == 1){
         //Particion extendida
@@ -212,6 +232,7 @@ void obj_fdisk::ejecutar(){
                 this->mbr_temp.mbr_partitions[particion_pos].part_start=partStart;
             }else{
                 printf("Error, no se puede crear mas de 1 particion extendida.");
+                fclose(disco);
                 return;
             }
             //Crear particiones extendidas
@@ -233,6 +254,14 @@ void obj_fdisk::ejecutar(){
             ebr.part_start = mbr_temp.mbr_partitions[particion_pos].part_start;
             ebr.part_status = '0';
 
+            //Verificar si hay suficiente espacio para crearla
+            if (this->mbr_temp.mbr_partitions[particion_pos].part_start + this->mbr_temp.mbr_partitions[particion_pos].part_size
+                    > this->mbr_temp.mbr_tamano){
+                cout<<"Error, la particion no se puede crear ya que excede la capacidad del disco.";
+                fclose(disco);
+                return;
+            }
+
             //Agregar el ebr al disco en la posicion inicial de la particion extendida
             fseek(disco,this->mbr_temp.mbr_partitions[particion_pos].part_start,SEEK_SET);
             fwrite(&ebr, sizeof(EBR), 1, disco);
@@ -247,6 +276,7 @@ void obj_fdisk::ejecutar(){
 
         }else{
             printf("Error, no se pueden crear mas particiones.");
+            fclose(disco);
             return;
         }
 
@@ -254,6 +284,7 @@ void obj_fdisk::ejecutar(){
         //Crear particiones logicas
         if (this->extendida == false){
             printf("No existe una particion extendida en este disco.");
+            fclose(disco);
             return;
         }
         cout<<"Tratando de crear una particion Logica"<<endl;
@@ -265,6 +296,12 @@ void obj_fdisk::ejecutar(){
         cout<<partStart<<endl;
         cout<<endl;
 
+        if (partStart == -1){
+            cout << "Error, la particion extendida no tiene suficiente espacio para crear la nueva particion logica"<<endl;
+            fclose(disco);
+            return;
+        }
+
         //Agregar EBR
         EBR ebr;
         ebr.part_fit = tipoFit;
@@ -273,6 +310,8 @@ void obj_fdisk::ejecutar(){
         ebr.part_size = particion_size;
         ebr.part_start = resultado.part_start;
         ebr.part_status = '1';
+
+
         //Agregar el ebr al disco en la posicion inicial de la particion extendida
         fseek(disco,partStart,SEEK_SET);
         fwrite(&ebr, sizeof(EBR), 1, disco);
@@ -316,16 +355,19 @@ void obj_fdisk::ordenarParticiones(){
     }
 }
 
-int obj_fdisk::eliminarParticion(){
+int obj_fdisk::eliminarParticion(int size){
     int pos = -1;
     int sizeName = this->name.length();
+    int j = 0;
     string nombrePart = "";
 
     cout<<sizeName<<endl;
     for (int i = 0; i<4; i++){
-        for (int j = 0; j<sizeName;j++){
+        while(this->mbr_temp.mbr_partitions[i].part_name[j] != NULL && j <= 15){
             nombrePart += this->mbr_temp.mbr_partitions[i].part_name[j];
+            j++;
         }
+        j=0;
 
         if (nombrePart == this->name){
             pos = i;
@@ -349,7 +391,13 @@ int obj_fdisk::eliminarParticion(){
     }
 
     //Borrar todo lo que tenga la particion
-
+    if (this->mbr_temp.mbr_partitions[pos].part_type=='E'){
+        int ultimaLogica = this->getUltimaLogica();
+        if (this->mbr_temp.mbr_partitions[pos].part_size - (size*-1) < ultimaLogica){
+            cout<<"Error, no se puede reducir esa cantidad, ya que la particion tiene otras particiones logicas."<<endl;
+            return -1;
+        }
+    }
 
     //Modificar la metadata
     Particion p1;
@@ -373,6 +421,7 @@ int obj_fdisk::eliminarParticion(){
 
 int obj_fdisk::eliminarParticionLogica(){
     int sizeName = this->name.length();
+    int j = 0;
     string nombrePart = "";
     bool validador = true;
 
@@ -397,9 +446,12 @@ int obj_fdisk::eliminarParticionLogica(){
         //Iterar entre todas las particiones hasta encontrar la que concuerde con el nombre
 
         //Primero conseguir el nombre de la particion
-        for (int i = 0; i<sizeName;i++){
-            nombrePart += ebr_actual.part_name[i];
+        while(ebr_actual.part_name[j]!= NULL && j <= 15){
+            nombrePart += ebr_actual.part_name[j];
+            j++;
         }
+        j = 0;
+
         if (nombrePart == this->name){
             //Validar que no sea la primara
             if (ebr_actual.part_start == this->mbr_temp.mbr_partitions[this->pos_extendida].part_start){
@@ -450,17 +502,24 @@ int obj_fdisk::eliminarParticionLogica(){
 
 int obj_fdisk::agregarEspacio(int size, int tipoParticion){
     int pos = -1;
+    int j = 0;
     int sizeName = this->name.length();
     string nombrePart = "";
     FILE *disco;
     disco =fopen(this->path.c_str(),"rb+");
-
+    //Obtener nombre
     cout<<sizeName<<endl;
     for (int i = 0; i<4; i++){
+        /*
         for (int j = 0; j<sizeName;j++){
             nombrePart += this->mbr_temp.mbr_partitions[i].part_name[j];
         }
-
+        */
+        while (this->mbr_temp.mbr_partitions[i].part_name[j] != NULL && j <= 15){
+            nombrePart += this->mbr_temp.mbr_partitions[i].part_name[j];
+            j++;
+        }
+        j = 0;
         if (nombrePart == this->name){
             pos = i;
             break;
@@ -469,35 +528,45 @@ int obj_fdisk::agregarEspacio(int size, int tipoParticion){
         }
     }
 
+    //Verificar si existe la particion o puede que sea logica
     if (nombrePart == ""){
-        int resultadoLogica = this->addParticionLogica(size);
+        int resultadoLogica = this->agregarEspacioLogica(size);
 
         if (resultadoLogica == -1){
             cout<<"Error, la particion no existe."<<endl;
+            fclose(disco);
             return -1;
         }else{
             cout<<"Instruccion ejecutada con exito."<<endl;
+            fclose(disco);
             return 0;
         }
 
     }
     if (pos == -1){
         cout<<"Error, la particion no existe."<<endl;
+        fclose(disco);
         return -1;
     }
 
+    //Verificar si el size ingresado es correcto
     if (size > 0){
         Particion particion = this->mbr_temp.mbr_partitions[pos];
-        Particion particion_sig = this->mbr_temp.mbr_partitions[pos+1];
         if (pos < 3){
+            Particion particion_sig = this->mbr_temp.mbr_partitions[pos+1];
             //No es la ultima
             if (size < 0){
                 if (particion.part_size > (size*-1) && ((particion.part_size+size)> sizeof(MBR)) ){
                     //Si hay espacio
                     this->mbr_temp.mbr_partitions[pos].part_size-= size;
+                    fseek(disco,0,SEEK_SET);
+                    fwrite(&this->mbr_temp, sizeof(MBR), 1, disco);
+                    fclose(disco);
+                    return 0;
                 }else{
                     //No hay espacio
                     cout<<"Error, no hay suficiente espacio disponible."<<endl;
+                    fclose(disco);
                     return -1;
                 }
             }
@@ -505,21 +574,31 @@ int obj_fdisk::agregarEspacio(int size, int tipoParticion){
                 //Si hay mas particiones
                 if (size > (particion.part_start+particion.part_size - particion_sig.part_start)){
                     //Si hay espacio
+                    this->mbr_temp.mbr_partitions[pos].part_size+= size;
+                    fseek(disco,0,SEEK_SET);
+                    fwrite(&this->mbr_temp, sizeof(MBR), 1, disco);
+                    fclose(disco);
+                    return 0;
                 }else{
                     //No hay espacio
                     cout<<"Error, no hay suficiente espacio disponible."<<endl;
+                    fclose(disco);
                     return -1;
                 }
 
             }else{
                 //No tiene mas particiones por delante
-                if (this->ebr_temp.part_size-(particion.part_start+particion.part_size) > size){
+                if (this->mbr_temp.mbr_tamano-(particion.part_start+particion.part_size) > size){
                    //Si hay espacio
-                    this->mbr_temp.mbr_partitions[pos].part_size-= size;
-
+                    this->mbr_temp.mbr_partitions[pos].part_size+= size;
+                    fseek(disco,0,SEEK_SET);
+                    fwrite(&this->mbr_temp, sizeof(MBR), 1, disco);
+                    fclose(disco);
+                    return 0;
                 }else{
                     //No hay espacio
                     cout<<"Error, no hay suficiente espacio disponible."<<endl;
+                    fclose(disco);
                     return -1;
                 }
             }
@@ -527,35 +606,165 @@ int obj_fdisk::agregarEspacio(int size, int tipoParticion){
         }else{
             //Es la ultima
             if (size < 0){
-                if (particion.part_size > (size*-1) && ((particion.part_size+size)> sizeof(MBR)) ){
+                if (particion.part_size > (size*-1) ){
                     //Si hay espacio
-                    this->mbr_temp.mbr_partitions[pos].part_size-= size;
+                    int logica = getUltimaLogica();
+                    if (logica == 0){
+                        this->mbr_temp.mbr_partitions[pos].part_size-= size;
+                        fseek(disco,0,SEEK_SET);
+                        fwrite(&this->mbr_temp, sizeof(MBR), 1, disco);
+                        fclose(disco);
+                        return 0;
+                    }
+
                 }else{
                     //No hay espacio
                     cout<<"Error, no hay suficiente espacio disponible."<<endl;
+                    fclose(disco);
                     return -1;
                 }
             }
 
-            if (this->ebr_temp.part_size-(particion.part_start+particion.part_size) > size){
+            if (this->mbr_temp.mbr_tamano-(particion.part_start+particion.part_size) >= size){
                //Si hay espacio
                 this->mbr_temp.mbr_partitions[pos].part_size+= size;
+                fseek(disco,0,SEEK_SET);
+                fwrite(&this->mbr_temp, sizeof(MBR), 1, disco);
+                fclose(disco);
+                return 0;
             }else{
                 //No hay espacio
                 cout<<"Error, no hay suficiente espacio disponible."<<endl;
+                fclose(disco);
                 return -1;
             }
         }
     }else{
         cout<<"Error, no se ingreso ninguna cantidad valida."<<endl;
+        fclose(disco);
         return -1;
     }
     return 0;
-sdasdasdasdasdasd
 }
 
+int obj_fdisk::getUltimaLogica(){
+    EBR logica;
+    FILE *disco;
+    int ultimaPos;
+    disco =fopen(this->path.c_str(),"rb+");
+    fseek(disco,this->mbr_temp.mbr_partitions[this->pos_extendida].part_start, SEEK_SET);
+    fread(&logica,sizeof(EBR),1,disco);
+    ultimaPos = logica.part_start;
+    if (logica.part_status == '1'){
+        while (true){
+            if (logica.part_next != -1){
+                ultimaPos = logica.part_next;
+                fseek(disco,ultimaPos, SEEK_SET);
+                fread(&logica,sizeof(EBR),1,disco);
+            }else{
+                fclose(disco);
+                return ultimaPos + logica.part_size;
+            }
+        }
+    }else{
+        fclose(disco);
+        return 0;
+    }
+
+}
 
 int obj_fdisk::agregarEspacioLogica(int size){
+    int sizeName = this->name.length();
+    int j = 0;
+    string nombrePart = "";
+    FILE *disco;
+    EBR ebr;
+    EBR ebr_sig;
+    //Cargar el EBR inicial de la particion extendida
+    disco =fopen(this->path.c_str(),"rb+");
+    fseek(disco,this->mbr_temp.mbr_partitions[this->pos_extendida].part_start, SEEK_SET);
+    fread(&ebr,sizeof(EBR),1,disco);
+    //Obtener nombre
+
+    while(true){
+    /*
+        for (int j = 0; j<sizeName;j++){
+            nombrePart += ebr.part_name[j];
+        }
+    */
+        while (ebr.part_name[j] != NULL && j <= 15){
+            nombrePart += ebr.part_name[j];
+            j++;
+        }
+        j= 0;
+        if (nombrePart == this->name){
+            break;
+        }else{
+            nombrePart = "";
+            if (ebr.part_next == -1){
+                break;
+            }
+            fseek(disco,ebr.part_next, SEEK_SET);
+            fread(&ebr,sizeof(EBR),1,disco);
+        }
+    }
+    //Verificar si existe la particion o puede que sea logica
+    if (nombrePart == ""){
+        cout<<"Error, la particion no existe."<<endl;
+        fclose(disco);
+        return -1;
+    }
+
+    if (size < 0){
+        //Size negativo
+        if (ebr.part_size-sizeof(EBR) > size*-1){
+            ebr.part_size-= size;
+            fseek(disco,ebr.part_start,SEEK_SET);
+            fwrite(&ebr, sizeof(EBR), 1, disco);
+            fclose(disco);
+            return 0;
+        }else{
+            //No hay espacio
+            cout<<"Error, no hay suficiente espacio disponible."<<endl;
+            fclose(disco);
+            return -1;
+        }
+    }else{
+        //Size positivo
+        if (ebr.part_next != -1){
+            //Hay mas particiones
+            ebr.part_size-= size;
+            fseek(disco,ebr.part_next,SEEK_SET);
+            fwrite(&ebr_sig, sizeof(EBR), 1, disco);
+            if (ebr_sig.part_start - ebr.part_start+ebr.part_size >= size){
+                ebr.part_size+= size;
+                fseek(disco,ebr.part_start,SEEK_SET);
+                fwrite(&ebr, sizeof(EBR), 1, disco);
+                fclose(disco);
+                return 0;
+            }else{
+                //No hay espacio
+                cout<<"Error, no hay suficiente espacio disponible."<<endl;
+                fclose(disco);
+                return -1;
+            }
+        }else{
+            //No hay mas particiones
+            if (this->mbr_temp.mbr_partitions[this->pos_extendida].part_size > size){
+                ebr.part_size+= size;
+                fseek(disco,ebr.part_start,SEEK_SET);
+                fwrite(&ebr, sizeof(EBR), 1, disco);
+                fclose(disco);
+                return 0;
+            }else{
+                //No hay espacio
+                cout<<"Error, no hay suficiente espacio disponible."<<endl;
+                fclose(disco);
+                return -1;
+            }
+        }
+    }
+
     return -1;
 }
 
@@ -629,6 +838,12 @@ EBR obj_fdisk::calcularPartStartLogica(int size){
             EBR resultado;
             resultado.part_start = part_ant;
             resultado.part_next = -1;
+            if (resultado.part_start + size > this->mbr_temp.mbr_partitions[this->pos_extendida].part_size){
+                //La particion no tiene tanto espacio para crearla
+                resultado.part_start = -1;
+                resultado.part_next = -1;
+                return resultado;
+            }
             return resultado;
         }
     }
@@ -643,6 +858,13 @@ EBR obj_fdisk::calcularPartStartLogica(int size){
         fread(&ebr,sizeof(EBR),1,disco);
         resultado.part_start = ebr.part_start+ebr.part_size;
         resultado.part_next = -1;
+        if (resultado.part_start + size > this->mbr_temp.mbr_partitions[this->pos_extendida].part_size){
+            //La particion no tiene tanto espacio para crearla
+            resultado.part_start = -1;
+            resultado.part_next = -1;
+            fclose(disco);
+            return resultado;
+        }
         ebr.part_next = resultado.part_start;
         fseek(disco,ebr.part_start, SEEK_SET);
         fwrite(&ebr, sizeof(EBR), 1, disco);
@@ -680,6 +902,13 @@ EBR obj_fdisk::calcularPartStartLogica(int size){
             ebr.part_next=ebr.part_start+ebr.part_size;
             resultado.part_start = ebr.part_start+ebr.part_size;
             resultado.part_next = -1;
+            if (resultado.part_start + size > this->mbr_temp.mbr_partitions[this->pos_extendida].part_size){
+                //La particion no tiene tanto espacio para crearla
+                resultado.part_start = -1;
+                resultado.part_next = -1;
+                fclose(disco);
+                return resultado;
+            }
             fseek(disco,ebr.part_start, SEEK_SET);
             fwrite(&ebr, sizeof(EBR), 1, disco);
             fclose(disco);
@@ -747,14 +976,21 @@ int obj_fdisk::buscarExtendida(){
 
 string obj_fdisk::obtenerNombre(int particion, int extendida){
     int pos = -1;
+    int j = 0;
     int sizeName = this->name.length();
     string nombrePart = "";
 
     if (extendida != -1 ){
-
+/*
         for (int j = 0; j<sizeName;j++){
             nombrePart += this->mbr_temp.mbr_partitions[particion].part_name[j];
         }
+*/
+        while(this->mbr_temp.mbr_partitions[particion].part_name[j] != NULL && j <= 15){
+            nombrePart += this->mbr_temp.mbr_partitions[particion].part_name[j];
+            j++;
+        }
+        j= 0;
     }else{
         EBR ebrInicial;
         EBR ebrTemp;
@@ -764,10 +1000,16 @@ string obj_fdisk::obtenerNombre(int particion, int extendida){
         disco =fopen(this->path.c_str(),"rb+");
         fseek(disco, this->mbr_temp.mbr_partitions[extendida].part_start, SEEK_SET);
         fread(&ebrInicial,sizeof(EBR),1,disco);
-
+/*
         for (int j = 0; j<sizeName;j++){
             nombrePart += this->mbr_temp.mbr_partitions[particion].part_name[j];
         }
+*/
+        while (this->mbr_temp.mbr_partitions[particion].part_name[j] != NULL && j<=15){
+            nombrePart += this->mbr_temp.mbr_partitions[particion].part_name[j];
+            j++;
+        }
+        j = 0;
 
        fclose(disco);
     }
@@ -796,4 +1038,7 @@ void obj_fdisk::mostrarDatos(){
     cout<<endl;
 
 }
+
+
+
 

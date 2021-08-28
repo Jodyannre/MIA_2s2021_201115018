@@ -33,6 +33,28 @@ typedef struct{
     Particion mbr_partitions[4];
 }MBR;
 
+
+typedef struct{
+    char name[16];
+    char id[4];
+    char type;
+    int estado;
+    int direccion;
+}Pmount;
+
+
+typedef struct{
+    Pmount particiones[49];
+    char path[100];
+    int number;
+    int estado;
+}Dmount;
+
+typedef struct{
+    Dmount disco[29];
+}Cmount;
+
+
 class estructuras
 {
 public:

@@ -31,7 +31,7 @@ letra [a-zA-ZÑñáéíóúÁÉÍÓÚ]+
 
 
 tpath "/"[^("\n"|"\t"|"\r"|"\f"|" "|"%"|"&")]*
-identificador {letra}({letra}|{entero}|"_")*
+identificador ({letra}|{entero})({letra}|{entero}|"_")*
 caracter "\'"("\\")?({letra}|{entero})"\'"
 cadena \"(([^\"]|\\\")*[^\\])?\"
 

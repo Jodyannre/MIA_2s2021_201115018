@@ -6,6 +6,9 @@
 #include <scanner.h>  // Nuestro scanner
 #include <QTextStream>
 #include <obj_mkdisk.h>
+
+
+
 using namespace std;
 extern int yyparse(); //
 //static QList<discosmontados> discosenmemoria
@@ -18,15 +21,20 @@ int main(int argc, char *argv[])
 
 
 
-    string path = "/home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //string path = "/home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    string path = "/home/joddie/Desktop/archivos/proyecto1/build-proyecto1-Desktop_Qt_6_1_2_GCC_64bit-Debug/dsmount.data";
     FILE *disco;
     char unidades,tipo;
     int particion_size;
     //Buscar el disco y verificar si existe
     disco =fopen(path.c_str(),"rb+");
+    Cmount cmount;
+
+
+    fseek(disco, 0, SEEK_SET);
+    fread(&cmount,sizeof(Cmount),1,disco);
 
     //Buscar la posicion del mbr del disco
-    fseek(disco, 0, SEEK_SET);
     //MBR para copiar temporalmente el mbr que contiene el disco
     MBR mbr_temp;
     EBR ebr_temp;
@@ -51,21 +59,25 @@ int main(int argc, char *argv[])
     cout<<mbr_temp.mbr_partitions[0].part_name<<endl;
     cout<<mbr_temp.mbr_partitions[0].part_fit<<endl;
     cout<<mbr_temp.mbr_partitions[0].part_start<<endl;
+    cout<<mbr_temp.mbr_partitions[0].part_size<<endl;
     cout<<"------------------------------------------"<<endl;
     cout<<mbr_temp.mbr_partitions[1].part_status<<endl;
     cout<<mbr_temp.mbr_partitions[1].part_name<<endl;
     cout<<mbr_temp.mbr_partitions[1].part_fit<<endl;
     cout<<mbr_temp.mbr_partitions[1].part_start<<endl;
+    cout<<mbr_temp.mbr_partitions[1].part_size<<endl;
     cout<<"------------------------------------------"<<endl;
     cout<<mbr_temp.mbr_partitions[2].part_status<<endl;
     cout<<mbr_temp.mbr_partitions[2].part_name<<endl;
     cout<<mbr_temp.mbr_partitions[2].part_fit<<endl;
     cout<<mbr_temp.mbr_partitions[2].part_start<<endl;
+    cout<<mbr_temp.mbr_partitions[2].part_size<<endl;
     cout<<"------------------------------------------"<<endl;
     cout<<mbr_temp.mbr_partitions[3].part_status<<endl;
     cout<<mbr_temp.mbr_partitions[3].part_name<<endl;
     cout<<mbr_temp.mbr_partitions[3].part_fit<<endl;
     cout<<mbr_temp.mbr_partitions[3].part_start<<endl;
+    cout<<mbr_temp.mbr_partitions[3].part_size<<endl;
     cout<<"------------------------------------------"<<endl;
     cout<<ebr_temp.part_name<<endl;
     cout<<ebr_temp.part_next<<endl;
@@ -84,11 +96,12 @@ int main(int argc, char *argv[])
     cout<<ebr_sig_sig.part_fit<<endl;
     cout<<ebr_sig_sig.part_status<<endl;
     cout<<ebr_sig_sig.part_start<<endl;
+    cout<<ebr_sig_sig.part_size<<endl;
     return 1;
 
 
 
-
+//-----------------------------------------------------------------------------------------------
 
 
     string lista ="";
@@ -100,12 +113,16 @@ int main(int argc, char *argv[])
     string p="------------------------------Comando ingresado------------------------------\n";
     //QTextStream qtin(stdin);
     QString line;
-    //lista = "mkdisk -size = 1 -u = m -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
-    //lista ="fdisk -size = 5 -name = particion3 -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
-    //lista ="fdisk -delete = fast -name=particion9 -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
-    //lista ="fdisk -size = 5 -name = particion3 -type=E -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
-    //lista ="fdisk -size = 3 -name = particion13 -type=L -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
-
+    //lista = "mkdisk -size = 2 -u = m -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista ="fdisk -delete = fast -name=particion3 -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista ="fdisk -size = 5 -name = particion1 -type=E -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista ="fdisk -size = 5 -name = particion2 -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista ="fdisk -size = 1 -name = particion3 -type=L -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista = "fdisk -add = 5 -u=k -name = particion3 -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista = "mount -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk -name = particion1";
+    //lista = "mount -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk -name = particion2";
+    //lista = "mount -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk -name = particion3";
+    //lista = "umount -id = 181C";
     line = QString::fromStdString(lista);
     if(line!="salir"){
         if(line.isEmpty()==false){
@@ -131,5 +148,8 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+
+
 
 
