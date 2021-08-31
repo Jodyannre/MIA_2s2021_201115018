@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 {
 
 
-
+/*
     //string path = "/home/joddie/Desktop/archivos/proyecto1/disco1.dk";
     string path = "/home/joddie/Desktop/archivos/proyecto1/build-proyecto1-Desktop_Qt_6_1_2_GCC_64bit-Debug/dsmount.data";
     FILE *disco;
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     cout<<ebr_sig_sig.part_size<<endl;
     return 1;
 
-
+*/
 
 //-----------------------------------------------------------------------------------------------
 
@@ -123,6 +123,7 @@ int main(int argc, char *argv[])
     //lista = "mount -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk -name = particion2";
     //lista = "mount -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk -name = particion3";
     //lista = "umount -id = 181C";
+    lista = "exec -path = /home/joddie/Desktop/archivos/proyecto1/comandos.sh";
     line = QString::fromStdString(lista);
     if(line!="salir"){
         if(line.isEmpty()==false){

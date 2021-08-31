@@ -16,6 +16,9 @@ public:
     string currentDir;
     string nombreArchivo;
     bool archivoCreado;
+    MBR mbr;
+    EBR ebr;
+    Cmount cmount;
     obj_mount();
     Particion buscarParticion();
     int ejecutar();
@@ -24,9 +27,7 @@ public:
     bool estaMontada();
     int estaMontado();
     string nameToString(int disco, int particion);
-    MBR mbr;
-    EBR ebr;
-    Cmount cmount;
+
 
 };
 

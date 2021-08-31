@@ -134,9 +134,11 @@ extern int yydebug;
     tpath = 344,
     fast = 345,
     full = 346,
-    suma = 347,
-    multi = 348,
-    division = 349
+    ext2 = 347,
+    ext3 = 348,
+    suma = 349,
+    multi = 350,
+    division = 351
   };
 #endif
 
@@ -184,7 +186,7 @@ class obj_umount *umount;
 int numero;
 char caracter[1];
 
-#line 188 "parser.h" /* yacc.c:1909  */
+#line 190 "parser.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

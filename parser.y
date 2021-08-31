@@ -183,6 +183,8 @@ char caracter[1];
 %token<TEXT> tpath;
 %token<TEXT> fast;
 %token<TEXT> full;
+%token<TEXT> ext2;
+%token<TEXT> ext3;
 
 
 %type<mkdisk>       COMANDO_MKDISK; // lista de instrucciones
@@ -194,8 +196,8 @@ char caracter[1];
 //%type<TEXT>         UNIDAD_PARTICION;
 %type<mount>        COMANDO_MOUNT;
 %type<umount>       COMANDO_UMOUNT;
-//%type<exec>     COMANDO_EXEC;
-//%type<mkfs>     COMANDO_MKFS;
+%type<exec>         COMANDO_EXEC;
+%type<mkfs>     COMANDO_MKFS;
 
 
 //%type<rep>      COMANDO_REP;
@@ -240,8 +242,8 @@ LEXPA
 |       pfdisk      COMANDO_FDISK   {$2->ejecutar();}
 |       pmount      COMANDO_MOUNT   {$2->ejecutar();}
 |       pumount     COMANDO_UMOUNT  {$2->ejecutar();}
-//|       pmkfs       COMANDO_MKFS
-//|       pexec       COMANDO_EXEC
+|       pmkfs       COMANDO_MKFS    {$2->ejecutar();}
+|       pexec       COMANDO_EXEC    {$2->ejecutar();}
 //|       prep        COMANDO_REP
 //|       pcat        COMANDO_CAT
 //|       pchgrp      COMANDO_CHGRP
@@ -389,22 +391,33 @@ COMANDO_UMOUNT
 :   menos pid igual identificador {obj_umount *disco=new obj_umount(); disco->id=$4; $$ = disco;}
 ;
 
-/*
-COMANDO_MKFS
-:   COMANDO_MKFS menos pid igual identificador {}
-|   menos pid igual identificador {}
-|   COMANDO_MKFS menos ptype igual identificador {}
-|   menos ptype igual identificador {}
-|   COMANDO_MKFS menos pfs igual identificador {}
-|   menos pfs igual identificador {}
-;
-
-
 COMANDO_EXEC
-:   menos pPath igual identificador {}
+:   menos pPath igual tpath {obj_exec *disco=new obj_exec(); disco->path=$4; $$=disco;}
 ;
 
 
+
+COMANDO_MKFS
+:   COMANDO_MKFS menos pid igual identificador {$1->id = $5; $$ = $1;}
+|   menos pid igual identificador {obj_mkfs *disco = new obj_mkfs(); disco->id = $4; $$ = disco;}
+
+|   COMANDO_MKFS menos ptype igual fast {$1->type = 0; $$ = $1;}
+|   menos ptype igual fast {obj_mkfs *disco = new obj_mkfs(); disco->type = 0; $$ = disco;}
+
+|   COMANDO_MKFS menos ptype igual full {$1->type = 1; $$ = $1;}
+|   menos ptype igual full {obj_mkfs *disco = new obj_mkfs(); disco->type = 1; $$ = disco;}
+
+|   COMANDO_MKFS menos pfs igual ext2 {$1->fs = 2; $$ = $1;}
+|   menos pfs igual ext2 {obj_mkfs *disco = new obj_mkfs(); disco->fs = 2; $$ = disco;}
+
+|   COMANDO_MKFS menos pfs igual ext3 {$1->fs = 3; $$ = $1;}
+|   menos pfs igual ext3 {obj_mkfs *disco = new obj_mkfs(); disco->fs = 3; $$ = disco;}
+;
+;
+
+
+
+/*
 COMANDO_REP
 :   COMANDO_REP menos pname igual identificador {}
 |   menos pname igual identificador {}
