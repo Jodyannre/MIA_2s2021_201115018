@@ -24,6 +24,7 @@ public:
     bool estaMontado();
     string nameToString(int disco, int particion);
     string idToString(int disco, int particion);
+    string pathToString(int disco, int particion);
     MBR mbr;
     EBR ebr;
     Cmount cmount;

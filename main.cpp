@@ -6,6 +6,7 @@
 #include <scanner.h>  // Nuestro scanner
 #include <QTextStream>
 #include <obj_mkdisk.h>
+#include "time.h"
 
 
 
@@ -18,6 +19,15 @@ extern int columna; // Columna de los tokens
 extern int yylineno;
 int main(int argc, char *argv[])
 {
+
+/*
+//Obtener el tiempo
+    time_t raw_time;
+    struct tm *tiempo;
+    raw_time = time(NULL);
+    tiempo = gmtime(&raw_time);
+    return 0;
+*/
 
 
 /*

@@ -5,6 +5,8 @@
 #include "estructuras.h"
 #include "time.h"
 #include "obj_umount.h"
+#include <math.h>
+#include "time.h"
 
 using namespace std;
 
@@ -24,6 +26,7 @@ public:
     bool archivoCreado;
     int posD;
     int posP;
+    void formatear(int typeF,string typeP);
 };
 
 #endif // OBJ_MKFS_H

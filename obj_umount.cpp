@@ -162,3 +162,17 @@ string obj_umount::idToString(int disco, int particion){
     }
     return nombre;
 }
+
+string obj_umount::pathToString(int disco, int particion){
+    int i = 0;
+    string nombre = "";
+    //Validar si la particion esta montada
+    if (this->cmount.disco[disco].estado == -1){
+        return nombre;
+    }
+    while(this->cmount.disco[disco].path[i]!=NULL && i<=100){
+        nombre+= this->cmount.disco[disco].path[i];
+        i++;
+    }
+    return nombre;
+}

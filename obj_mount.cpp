@@ -375,3 +375,5 @@ string obj_mount::nameToString(int disco, int particion){
     }
     return nombre;
 }
+
+
