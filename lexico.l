@@ -111,7 +111,8 @@ cadena \"(([^\"]|\\\")*[^\\])?\"
 "FULL"      {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return full;}
 "2FS"       {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return ext2;}
 "3FS"       {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return ext3;}
-
+"MBR"       {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return mbr;}
+"DISK"      {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return disk;}
 
 
 {entero} {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext); return entero;}

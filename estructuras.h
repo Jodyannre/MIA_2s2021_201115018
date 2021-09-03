@@ -1,7 +1,9 @@
 #ifndef ESTRUCTURAS_H
 #define ESTRUCTURAS_H
 #include "time.h"
+#include "string"
 
+using namespace std;
 
 typedef struct{
     char part_status;
@@ -105,6 +107,14 @@ typedef struct {
     char b_content[64];
 
 }BloqueArchivos;
+
+typedef struct {
+    int inicio;
+    int size;
+    string nombre;
+    char type;
+}GraficaDisk;
+
 
 
 class estructuras

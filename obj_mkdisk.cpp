@@ -47,6 +47,7 @@ int obj_mkdisk::ejecutar(){
 
     if (this->f < 0){
         this->f = 1;
+        strcpy( mbr.disk_fit,"F");
     }else if (this->f == 0){
         strcpy( mbr.disk_fit,"B");
     }else if (this->f == 1){

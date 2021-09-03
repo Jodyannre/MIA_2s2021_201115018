@@ -7,7 +7,7 @@
 #include <QTextStream>
 #include <obj_mkdisk.h>
 #include "time.h"
-
+#include "obj_rep.h"
 
 
 using namespace std;
@@ -19,7 +19,15 @@ extern int columna; // Columna de los tokens
 extern int yylineno;
 int main(int argc, char *argv[])
 {
-
+    obj_rep *reporte = new obj_rep();
+    string direccion ="/home/joddie/Desktop/archivos/proyecto1/reportes/reporte2.pdf";
+    string tipo="dISk";
+    string id="181B";
+    reporte->id = id;
+    reporte->name = tipo;
+    reporte->path = direccion;
+    reporte->ejecutar();
+    return 0;
 /*
 //Obtener el tiempo
     time_t raw_time;

@@ -18,7 +18,7 @@ int obj_umount::ejecutar(){
     this->getCurrentDir();
 
     //Cargar el archivo
-    disco =fopen(this->currentDir.c_str(),"rb+");
+    disco =fopen((this->currentDir+this->nombreArchivo).c_str(),"rb+");
 
     if (disco == NULL){
         //El comando mount nunca ha sido utilizado
@@ -79,8 +79,8 @@ int obj_umount::getCurrentDir(){
             }
             this->currentDir+= buffer[i];
         }
-        this->currentDir+= this->nombreArchivo;
-        cout<<this->currentDir<<endl;
+        //this->currentDir+= this->nombreArchivo;
+        //cout<<this->currentDir<<endl;
     } else {
         perror("Error, el directorio no existe.");
         return -1;

@@ -185,7 +185,8 @@ char caracter[1];
 %token<TEXT> full;
 %token<TEXT> ext2;
 %token<TEXT> ext3;
-
+%token<TEXT> mbr;
+%token<TEXT> disk;
 
 %type<mkdisk>       COMANDO_MKDISK; // lista de instrucciones
 //%type<TEXT>         COMANDO_MKDISK_UNIDAD;
@@ -417,20 +418,30 @@ COMANDO_MKFS
 
 
 
-/*
+
 COMANDO_REP
-:   COMANDO_REP menos pname igual identificador {}
-|   menos pname igual identificador {}
-|   COMANDO_REP menos pPath igual identificador {}
-|   menos pPath igual identificador {}
+:   COMANDO_REP menos pname igual mbr {}
+|   menos pname igual mbr {}
+|   COMANDO_REP menos pname igual disk {}
+|   menos pname igual disk {}
+
+
+|   COMANDO_REP menos pPath igual tpath {}
+|   menos pPath igual tpath {}
+
+
 |   COMANDO_REP menos pid igual identificador {}
-|   menos pid igual identificador {}
+|   menos pid igual identificador {obj_rep *disco = new obj_rep();}
+
+/*
 |   COMANDO_REP menos pruta igual identificador {}
 |   menos pruta igual identificador {}
+
 |   COMANDO_REP menos proot igual identificador {}
 |   menos proot igual identificador {}
-;
 */
+;
+
 
 
 
