@@ -14,6 +14,7 @@ int obj_exec::ejecutar(){
         cout<<"Error, no se ingreso una ruta valida."<<endl;
     }
     newfile.open(this->path,ios::in);
+    this->getCurrentDir();
     if (newfile.is_open()){
        string lista;
        while(getline(newfile, lista)){

@@ -136,9 +136,11 @@ extern int yydebug;
     full = 346,
     ext2 = 347,
     ext3 = 348,
-    suma = 349,
-    multi = 350,
-    division = 351
+    mbr = 349,
+    disk = 350,
+    suma = 351,
+    multi = 352,
+    division = 353
   };
 #endif
 
@@ -147,7 +149,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 54 "parser.y" /* yacc.c:1909  */
+#line 59 "parser.y" /* yacc.c:1909  */
 
 //se especifican los tipo de valores para los no terminales y lo terminales
 //char TEXT [256];
@@ -186,7 +188,7 @@ class obj_umount *umount;
 int numero;
 char caracter[1];
 
-#line 190 "parser.h" /* yacc.c:1909  */
+#line 192 "parser.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

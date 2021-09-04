@@ -116,6 +116,15 @@ typedef struct {
 }GraficaDisk;
 
 
+typedef struct{
+   char instruccion[10] ; //Tipo de instruccion
+   char tipo_bloque; //0 Para carpeta e 1 para archivo como en el superbloque
+   char nombre [140]; //Nombre con ruta
+   char content [140]; //Contenido del archivo
+   time_t fecha; // Fecha de creacion
+   char usuario [10]; //El usuario que creo la carpeta o el archivo
+   int permiso; //permisos
+   }Journal;
 
 class estructuras
 {

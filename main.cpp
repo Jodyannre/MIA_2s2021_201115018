@@ -19,6 +19,44 @@ extern int columna; // Columna de los tokens
 extern int yylineno;
 int main(int argc, char *argv[])
 {
+
+    /*
+    //Pruebas mkfs
+    MBR mbr;
+    FILE *disco;
+    SuperBloque super;
+    Inodo iraiz;
+    Inodo archivo;
+    BloqueArchivos bArchivo;
+    BloqueCarpetas bCarpeta;
+    char bitmapInodos[16];
+    char bitmapBloques[3*16];
+    Journal journal;
+    string path = "/home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //string path = "/home/joddie/Desktop/archivos/proyecto1/build-proyecto1-Desktop_Qt_6_1_2_GCC_64bit-Debug/dsmount.data";
+    disco =fopen(path.c_str(),"rb+");
+    fseek(disco, 0, SEEK_SET);
+    fread(&mbr,sizeof(MBR),1,disco);
+    fseek(disco,mbr.mbr_partitions[1].part_start,SEEK_SET);
+    fread(&super,sizeof(SuperBloque),1,disco);
+    fseek(disco,super.s_inode_start,SEEK_SET);
+    fread(&iraiz,sizeof(Inodo),1,disco);
+    fseek(disco,super.s_inode_start+super.s_inode_size,SEEK_SET);
+    fread(&archivo,sizeof(Inodo),1,disco);
+    fseek(disco,super.s_block_start,SEEK_SET);
+    fread(&bCarpeta,sizeof(BloqueCarpetas),1,disco);
+    fseek(disco,super.s_block_start+super.s_block_size,SEEK_SET);
+    fread(&bArchivo,sizeof(BloqueArchivos),1,disco);
+    fseek(disco,mbr.mbr_partitions[1].part_start+sizeof(SuperBloque),SEEK_SET);
+    fread(&bitmapInodos,sizeof(bitmapInodos),1,disco);
+    fseek(disco,mbr.mbr_partitions[1].part_start+sizeof(SuperBloque)+sizeof(bitmapInodos),SEEK_SET);
+    fread(&bitmapBloques,sizeof(bitmapBloques),1,disco);
+    */
+
+
+
+/*
+    //Reportes
     obj_rep *reporte = new obj_rep();
     string direccion ="/home/joddie/Desktop/archivos/proyecto1/reportes/reporte2.pdf";
     string tipo="dISk";
@@ -28,6 +66,8 @@ int main(int argc, char *argv[])
     reporte->path = direccion;
     reporte->ejecutar();
     return 0;
+*/
+
 /*
 //Obtener el tiempo
     time_t raw_time;
@@ -146,8 +186,6 @@ int main(int argc, char *argv[])
     if(line!="salir"){
         if(line.isEmpty()==false){
             YY_BUFFER_STATE buffer = yy_scan_string(line.toUtf8().constData());
-
-
             linea = 0;
             columna = 0;
             yylineno = 0;

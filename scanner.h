@@ -317,7 +317,7 @@ extern int yylex (void);
 #undef YY_DECL
 #endif
 
-#line 153 "lexico.l"
+#line 154 "lexico.l"
 
 #line 323 "scanner.h"
 #undef yyIN_HEADER

@@ -40,17 +40,22 @@ extern int yylineno; //linea actual donde se encuentra el parser (analisis lexic
 extern int columna; //columna actual donde se encuentra el parser (analisis lexico) lo maneja BISON
 extern char *yytext; //lexema actual donde esta el parser (analisis lexico) lo maneja BISON
 
+
 int yyerror(const char* mens)
 {
 std::cout << mens <<" "<<yytext<< std::endl;
 return 0;
 }
+
 %}
 //error-verbose si se especifica la opcion los errores sintacticos son especificados por BISON
 %defines "parser.h"
 %output "parser.cpp"
 %error-verbose
 %locations
+
+
+
 %union{
 //se especifican los tipo de valores para los no terminales y lo terminales
 //char TEXT [256];
@@ -198,10 +203,8 @@ char caracter[1];
 %type<mount>        COMANDO_MOUNT;
 %type<umount>       COMANDO_UMOUNT;
 %type<exec>         COMANDO_EXEC;
-%type<mkfs>     COMANDO_MKFS;
-
-
-//%type<rep>      COMANDO_REP;
+%type<mkfs>         COMANDO_MKFS;
+%type<rep>          COMANDO_REP;
 
 //%type<cat>      COMANDO_CAT
 //%type<chgrp>    COMANDO_CHGRP
@@ -245,7 +248,7 @@ LEXPA
 |       pumount     COMANDO_UMOUNT  {$2->ejecutar();}
 |       pmkfs       COMANDO_MKFS    {$2->ejecutar();}
 |       pexec       COMANDO_EXEC    {$2->ejecutar();}
-//|       prep        COMANDO_REP
+|       prep        COMANDO_REP     {$2->ejecutar();}
 //|       pcat        COMANDO_CAT
 //|       pchgrp      COMANDO_CHGRP
 //|       pchmod      COMANDO_CHMOD
@@ -420,18 +423,19 @@ COMANDO_MKFS
 
 
 COMANDO_REP
-:   COMANDO_REP menos pname igual mbr {}
-|   menos pname igual mbr {}
-|   COMANDO_REP menos pname igual disk {}
-|   menos pname igual disk {}
+:   COMANDO_REP menos pname igual mbr {$1->name = "mbr"; $$ = $1;}
+|   menos pname igual mbr {obj_rep *disco = new obj_rep();disco->name = "mbr"; $$ = disco;}
+
+|   COMANDO_REP menos pname igual disk {$1->name = "disk"; $$ = $1;}
+|   menos pname igual disk {obj_rep *disco = new obj_rep();disco->name = "disk"; $$ = disco;}
 
 
-|   COMANDO_REP menos pPath igual tpath {}
-|   menos pPath igual tpath {}
+|   COMANDO_REP menos pPath igual tpath {$1->path = $5; $$ = $1;}
+|   menos pPath igual tpath {obj_rep *disco = new obj_rep();disco->path = $4; $$ = disco;}
 
 
-|   COMANDO_REP menos pid igual identificador {}
-|   menos pid igual identificador {obj_rep *disco = new obj_rep();}
+|   COMANDO_REP menos pid igual identificador {$1->id = $4; $$ = $1;}
+|   menos pid igual identificador {obj_rep *disco = new obj_rep();disco->id = $4; $$ = disco;}
 
 /*
 |   COMANDO_REP menos pruta igual identificador {}
