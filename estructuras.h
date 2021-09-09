@@ -28,6 +28,15 @@ typedef struct{
 
 
 typedef struct{
+    int inicio;
+    int size;
+    int libre;
+    char tipoParticion;
+    EBR anterior;
+}Espacio;
+
+
+typedef struct{
     int mbr_tamano;
     time_t mbr_fecha_creacion;
     int mbr_disk_signature;

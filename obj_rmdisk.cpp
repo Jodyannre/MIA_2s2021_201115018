@@ -14,20 +14,36 @@ void obj_rmdisk::mostrardatos(obj_rmdisk *disco){
 }
 
 int obj_rmdisk::ejecutar(){
+    string confirmacion="";
     if (this->estaMontado()){
         printf("El disco no puede ser eliminado mientras haya una particion montada.");
         return -1;
     }
+    cout<<"Desea continuar con la eliminacion del disco ingresado? (y/n)\n"<<endl;
+    cin>>confirmacion;
+    //confirmacion = "y";
+    if (confirmacion =="y" || confirmacion =="Y"){
 
-    if( remove(this->path.c_str()) != 0 ){
-        printf("Error, el archivo no existe.");
-        return -1;
+        if( remove(this->path.c_str()) != 0 ){
+            printf("Error, el disco no existe.\n");
+            return -1;
+        }
+
+        else{
+            printf( "Disco eliminado con exito. \n" );
+            return 1;
+        }
+
+
+    }else if (confirmacion =="n" || confirmacion =="N"){
+        cout<<"El disco no fue eliminado."<<endl;
+        return 0;
+
+    }else{
+        cout<<"Error, opcion invalida."<<endl;
+        return 0;
     }
 
-    else{
-        printf( "Archivo eliminado con exito." );
-        return 1;
-    }
 
 }
 
@@ -42,7 +58,7 @@ bool obj_rmdisk::estaMontado(){
 
     //Si el disco no existe retornara un null
     if (disco == NULL){
-        fclose(disco);
+        //fclose(disco);
         return false;
     }
 
@@ -75,7 +91,7 @@ bool obj_rmdisk::estaMontado(){
 int obj_rmdisk::getCurrentDir(){
     char buffer[PATH_MAX];
     if (getcwd(buffer, sizeof(buffer)) != NULL) {
-        printf("El directorio actual es: %s\n", buffer);
+        //printf("El directorio actual es: %s\n", buffer);
         for (int i=0; i< sizeof(buffer);i++){
             if (i==88){
                 //Nada
@@ -87,9 +103,9 @@ int obj_rmdisk::getCurrentDir(){
             this->currentDir+= buffer[i];
         }
         this->currentDir+= "/dsmount.data";
-        cout<<this->currentDir<<endl;
+        //cout<<this->currentDir<<endl;
     } else {
-        perror("Error, el directorio no existe.");
+        //perror("Error, el directorio no existe.");
         return -1;
     }
     return 0;

@@ -28,12 +28,13 @@ entero [0-9]+
 letra [a-zA-ZÑñáéíóúÁÉÍÓÚ]+
 
 
-
-
-tpath "/"[^("\n"|"\t"|"\r"|"\f"|" "|"%"|"&")]*
+comens #[^#\n\r]*
+cadena \"([^(\"|"#")])*\"
+tpath "/"([^("\n"|"\t"|"\r"|"\f"|" ")])*
 identificador ({letra}|{entero})({letra}|{entero}|"_")*
 caracter "\'"("\\")?({letra}|{entero})"\'"
-cadena \"(([^\"]|\\\")*[^\\])?\"
+
+
 
 
 
@@ -120,7 +121,7 @@ cadena \"(([^\"]|\\\")*[^\\])?\"
 {identificador} {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext); return identificador;}
 {caracter} {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext); return caracter;}
 {tpath} {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext); return tpath;}
-
+{comens}	{/*a C comment*/}
 
 "." {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return punto;}
 "<" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return bracketabre;}
@@ -149,5 +150,5 @@ cadena \"(([^\"]|\\\")*[^\\])?\"
 .   {
 
 std::cout<<"Error Lexico: "<<linea<<"\n";
-//printf("Error lexico en linea %d",linea);
+
 }

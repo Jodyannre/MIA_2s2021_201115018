@@ -5,7 +5,7 @@
 #include "estructuras.h"
 #include <bits/stdc++.h>
 #include <cstdio>
-
+#include <queue>
 
 
 using namespace std;
@@ -33,8 +33,8 @@ public:
     void mostrarDatos();
     void ejecutar();
     int buscarParticionVacia(int tipo_particion);
-    int calcularPartStart(int size, int tipo_particion);
-    EBR calcularPartStartLogica(int size);
+    int calcularPartStart(int size, int tipo_particion,char ajuste);
+    EBR calcularPartStartLogica(int size, char ajuste);
     void ordenarParticiones();
     int eliminarParticion(int size);
     int eliminarParticionLogica();

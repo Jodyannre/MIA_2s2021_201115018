@@ -27,18 +27,18 @@ int obj_rep::ejecutar(){
     //Verificar obligatorios
 
     //Verificar nombre vacio
-    if(this->name == " "){
-        cout<<"Error, nombre de reporte no valido."<<endl;
+    if(this->name == ""){
+        cout<<"Error, nombre de reporte no valido. \n"<<endl;
         return -1;
     }
 
     if(this->path == ""){
-        cout<<"Error, no se ingreso un path valido."<<endl;
+        cout<<"Error, no se ingreso un path valido. \n"<<endl;
         return -1;
     }
 
     if(this->id == ""){
-        cout<<"Error, no se ingreso un id valido."<<endl;
+        cout<<"Error, no se ingreso un id valido. \n"<<endl;
         return -1;
     }
 
@@ -50,7 +50,7 @@ int obj_rep::ejecutar(){
 
     if (file_mounts == NULL){
         //El comando mount nunca ha sido utilizado
-        cout<<"Error, no se ha montado ninguna particion"<<endl;
+        cout<<"Error, no se ha montado ninguna particion. \n"<<endl;
         fclose(file_mounts);
         return -1;
     }
@@ -62,7 +62,7 @@ int obj_rep::ejecutar(){
 
     //Vericicar que la particion este montada
     if (!umount->estaMontada()){
-        cout<<"Error, la particion no ha sido montada."<<endl;
+        cout<<"Error, la particion no ha sido montada. \n"<<endl;
         fclose(file_mounts);
         return -1;
     }
@@ -70,7 +70,7 @@ int obj_rep::ejecutar(){
 
     //Verificar que el disco este montado
     if (!umount->estaMontado()){
-        cout<<"Error, el disco no ha sido montado."<<endl;
+        cout<<"Error, el disco no ha sido montado. \n"<<endl;
         fclose(file_mounts);
         return -1;
     }
@@ -149,7 +149,7 @@ void obj_rep::verificarRuta(string ruta){
 
     if(!dir.exists())
         {
-            qDebug() << "Creating " << path << "directory";
+            //qDebug() << "Creating " << path << "directory";
             dir.mkpath(path);
         }
         else
@@ -247,7 +247,7 @@ void obj_rep::crearReporteMBR(string nombreArchivoSalida, string nombreDisco, st
 
     //Aqui comienza el llenado por cada una de las particiones
     for (int i = 0; i<4 ; i++){
-        if (this->mbr.mbr_partitions[i].part_status=='0'){
+        if (this->mbr.mbr_partitions[i].part_status!='1'){
             continue;
         }
         //Part status
@@ -330,7 +330,7 @@ void obj_rep::crearReporteMBR(string nombreArchivoSalida, string nombreDisco, st
 
     //Renombrar el archivo de salida
     string renombrar = "mv "+nombre_dot+".svg " + ruta+"/"+nombreArchivo+".svg";
-    cout<<renombrar;
+    //cout<<renombrar;
     system(renombrar.c_str());
     crearReporteEBR(nombreArchivoSalida, nombreDisco, ruta,rutaDisco);
 
@@ -483,7 +483,7 @@ void obj_rep::crearReporteEBR(string nombreArchivoSalida, string nombreDisco, st
 
     //Renombrar el archivo de salida
     string renombrar = "mv "+nombre_dot+".svg " + ruta+"/"+nombreArchivo+".svg";
-    cout<<renombrar;
+    //cout<<renombrar;
     system(renombrar.c_str());
     fclose(disco);
 
@@ -515,12 +515,12 @@ void obj_rep::crearReporteDisk(string nombreArchivoSalida, string nombreRep, str
                 anterior = lista_mbr.back();
                 if (nodo.inicio-anterior.inicio-anterior.size > 0){
                     //Hay espacio libre
-                    GraficaDisk nodo;
-                    nodo.nombre = "Libre";
-                    nodo.size = nodo.inicio-anterior.inicio-anterior.size;
-                    nodo.inicio = anterior.inicio+anterior.size ;
-                    nodo.type = 'L';
-                    lista_mbr.push(nodo);
+                    GraficaDisk nodoL;
+                    nodoL.nombre = "Libre";
+                    nodoL.size = nodo.inicio-anterior.inicio-anterior.size;
+                    nodoL.inicio = anterior.inicio+anterior.size ;
+                    nodoL.type = 'L';
+                    lista_mbr.push(nodoL);
                 }
             }
             lista_mbr.push(nodo);
@@ -538,12 +538,12 @@ void obj_rep::crearReporteDisk(string nombreArchivoSalida, string nombreRep, str
                 anterior = lista_mbr.back();
                 if (nodo.inicio-anterior.inicio-anterior.size > 0){
                     //Hay espacio libre
-                    GraficaDisk nodo;
-                    nodo.nombre = "Libre";
-                    nodo.size = nodo.inicio-anterior.inicio-anterior.size;
-                    nodo.inicio = anterior.inicio+anterior.size ;
-                    nodo.type = 'L';
-                    lista_mbr.push(nodo);
+                    GraficaDisk nodoL;
+                    nodoL.nombre = "Libre";
+                    nodoL.size = nodo.inicio-anterior.inicio-anterior.size;
+                    nodoL.inicio = anterior.inicio+anterior.size ;
+                    nodoL.type = 'L';
+                    lista_mbr.push(nodoL);
                 }
             }
             lista_mbr.push(nodo);
@@ -599,12 +599,12 @@ void obj_rep::crearReporteDisk(string nombreArchivoSalida, string nombreRep, str
                 if (ebr.part_next - ebr.part_start - ebr.part_size > 0){
                     //Hay espacio libre
                     extensionExtendida++;
-                    GraficaDisk nodo;
-                    nodo.nombre = "Libre";
-                    nodo.size = ebr.part_next - ebr.part_start - ebr.part_size;
-                    nodo.type = 'L';
-                    nodo.inicio = ebr.part_start;
-                    lista_ebr.push(nodo);
+                    GraficaDisk nodoL;
+                    nodoL.nombre = "Libre";
+                    nodoL.size = ebr.part_next - ebr.part_start - ebr.part_size;
+                    nodoL.type = 'L';
+                    nodoL.inicio = ebr.part_start;
+                    lista_ebr.push(nodoL);
                 }
                 primera = true;
                 fseek(disco, ebr.part_next, SEEK_SET);
@@ -612,12 +612,12 @@ void obj_rep::crearReporteDisk(string nombreArchivoSalida, string nombreRep, str
             }else{
                 //Espacio libre
                 extensionExtendida++;
-                GraficaDisk nodo;
-                nodo.nombre = "Libre";
-                nodo.size = this->mbr.mbr_partitions[posExtendida].part_size - ebr.part_start - ebr.part_size;
-                nodo.type = 'L';
-                nodo.inicio = ebr.part_start;
-                lista_ebr.push(nodo);
+                GraficaDisk nodoL;
+                nodoL.nombre = "Libre";
+                nodoL.size = this->mbr.mbr_partitions[posExtendida].part_start +this->mbr.mbr_partitions[posExtendida].part_size - ebr.part_start - ebr.part_size;
+                nodoL.type = 'L';
+                nodoL.inicio = ebr.part_start;
+                lista_ebr.push(nodoL);
                 fclose(disco);
                 break;
             }
@@ -722,21 +722,23 @@ void obj_rep::crearReporteDisk(string nombreArchivoSalida, string nombreRep, str
     archivo<<cierre;
     archivo.close();
     //Ejecutar dot y get un svg
-    for (int i=0; i<500;i++){
+    for (int i=0; i<7000;i++){
 
     }
     system(cmd.c_str());
     //Esperar un momento para poder borrar el dot
-    for (int i=0; i<500;i++){
+    for (int i=0; i<7000;i++){
 
     }
     if( remove(nombre_dot.c_str()) != 0 ){
         printf("Error, el archivo no existe.");
     }
+    for (int i=0; i<7000;i++){
 
+    }
     //Renombrar el archivo de salida
     string renombrar = "mv "+nombre_dot+".svg " + ruta+"/"+nombreArchivo+".svg";
-    cout<<renombrar;
+    //cout<<renombrar;
     system(renombrar.c_str());
 
 }

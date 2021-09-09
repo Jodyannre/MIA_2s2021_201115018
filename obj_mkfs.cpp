@@ -222,9 +222,11 @@ int obj_mkfs::ejecutar( ){
         //Crear bloque de carpeta para la raiz para los primeros 4 content
         BloqueCarpetas carpetaRaiz;
         Content contentRoot; //Contenido de la carpeta
-        strcpy(contentRoot.b_name, "raiz");//Va a apuntar a si mismo
+        strcpy(contentRoot.b_name, ".");//Va a apuntar a si mismo
         contentRoot.b_inodo = 0; //apuntador al primer inodo que va a ser el root
         carpetaRaiz.b_content[0] = contentRoot;
+        strcpy(contentRoot.b_name, "..");//Indica que tiene un padre
+        carpetaRaiz.b_content[1] = contentRoot;
         inodo_raiz.i_block[0]=0; //Apunta al bloque de la carpeta raiz, al 0
         Content contentRaiz;
 

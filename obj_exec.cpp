@@ -18,6 +18,7 @@ int obj_exec::ejecutar(){
     if (newfile.is_open()){
        string lista;
        while(getline(newfile, lista)){
+           //Quitar comillas
            QString line;
            line = QString::fromStdString(lista);
            if(line!="salir"){
@@ -29,11 +30,11 @@ int obj_exec::ejecutar(){
 
                    if(yyparse()==0) // Si nos da un número negativo, signifca error.
                    {
-                       printf("\n\Comando ejecutado correctamente\n\n");
+                       //printf("\n\Comando ejecutado correctamente\n\n");
 
                    }else {
 
-                       printf("\n\nhay errores\n\n");
+                       printf("\n\nHay errores sintacticos o lexicos.\n\n");
                    }
 
                }
@@ -43,7 +44,7 @@ int obj_exec::ejecutar(){
     }
 
     if( remove(this->currentDir.c_str()) != 0 ){
-        printf("Error, el archivo no existe.");
+        //printf("Error, el archivo no existe.");
         return -1;
     }
 
@@ -55,7 +56,7 @@ int obj_exec::ejecutar(){
 int obj_exec::getCurrentDir(){
     char buffer[PATH_MAX];
     if (getcwd(buffer, sizeof(buffer)) != NULL) {
-        printf("El directorio actual es: %s\n", buffer);
+        //printf("El directorio actual es: %s\n", buffer);
         for (int i=0; i< sizeof(buffer);i++){
             if (i==88){
                 //Nada
@@ -67,9 +68,9 @@ int obj_exec::getCurrentDir(){
             this->currentDir+= buffer[i];
         }
         this->currentDir+= this->nombreArchivo;
-        cout<<this->currentDir<<endl;
+        //cout<<this->currentDir<<endl;
     } else {
-        perror("Error, el directorio no existe.");
+        //perror("Error, el directorio no existe.");
         return -1;
     }
     return 0;

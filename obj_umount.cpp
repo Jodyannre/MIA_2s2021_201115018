@@ -55,6 +55,7 @@ int obj_umount::ejecutar(){
 
 
     //Actualizar el archivo
+    cout<<"Particion desmontada."<<endl;
     fseek(disco, 0, SEEK_SET);
     fwrite(&this->cmount, sizeof(Cmount), 1, disco);
     fclose(disco);
@@ -68,7 +69,7 @@ int obj_umount::ejecutar(){
 int obj_umount::getCurrentDir(){
     char buffer[PATH_MAX];
     if (getcwd(buffer, sizeof(buffer)) != NULL) {
-        printf("El directorio actual es: %s\n", buffer);
+        //printf("El directorio actual es: %s\n", buffer);
         for (int i=0; i< sizeof(buffer);i++){
             if (i==88){
                 //Nada
@@ -102,7 +103,7 @@ bool obj_umount::estaMontada(){
     //Verificar en el archivo si el disco esta cargado
     if (!this->estaMontado()){
         //El disco no esta montado
-        cout<<"El disco no esta montado"<<endl;
+        cout<<"El disco no esta montado."<<endl;
         return false;
     }
 
@@ -152,14 +153,22 @@ string obj_umount::nameToString(int disco, int particion){
 string obj_umount::idToString(int disco, int particion){
     int i = 0;
     string nombre = "";
+    string id="";
     //Validar si la particion esta montada
     if (this->cmount.disco[disco].particiones[particion].estado == -1){
         return nombre;
     }
     while(this->cmount.disco[disco].particiones[particion].id[i]!=NULL && i<4){
-        nombre+= this->cmount.disco[disco].particiones[particion].id[i];
+        nombre+= toupper(this->cmount.disco[disco].particiones[particion].id[i]);
         i++;
     }
+    i = 0;
+    //Todo a mayuscula
+    while(this->id[i]!=NULL && i<4){
+        id+= toupper(this->id[i]);
+        i++;
+    }
+    this->id = id;
     return nombre;
 }
 

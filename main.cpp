@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
     string p="------------------------------Comando ingresado------------------------------\n";
     //QTextStream qtin(stdin);
     QString line;
-    //lista = "mkdisk -size = 2 -u = m -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
+    //lista = "mkdisk -size = 2 -u = m -path = /home/joddie/Desktop/archivos/proyecto1/hola1/hola2/hola3/disco1.dk";
     //lista ="fdisk -delete = fast -name=particion3 -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
     //lista ="fdisk -size = 5 -name = particion1 -type=E -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
     //lista ="fdisk -size = 5 -name = particion2 -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk";
@@ -181,7 +181,12 @@ int main(int argc, char *argv[])
     //lista = "mount -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk -name = particion2";
     //lista = "mount -path = /home/joddie/Desktop/archivos/proyecto1/disco1.dk -name = particion3";
     //lista = "umount -id = 181C";
-    lista = "exec -path = /home/joddie/Desktop/archivos/proyecto1/comandos.sh";
+    //lista = "exec -path = /home/joddie/Desktop/archivos/proyecto1/comandos.sh";
+    //lista = "mount -path=/home/joddie/Desktop/archivos/calificacion/discoscalificacion/discooficial.dk -name = p1";
+    //lista = "rep -id=181A -path = /home/joddie/Desktop/archivos/calificacion/reportes/reporte1.pdf -name = disk";
+    //lista = "rep -id=181A -path = /home/joddie/Desktop/archivos/calificacion/reportes/reporte1.pdf -name = mbr";
+
+    //lista = "pause";
     line = QString::fromStdString(lista);
     if(line!="salir"){
         if(line.isEmpty()==false){
@@ -192,11 +197,11 @@ int main(int argc, char *argv[])
 
             if(yyparse()==0) // Si nos da un número negativo, signifca error.
             {
-                printf("\n\Comando ejecutado correctamente\n\n");
+                //printf("\n\Comando ejecutado correctamente\n\n");
 
             }else {
 
-                printf("\n\nhay errores\n\n");
+                //printf("\n\nhay errores\n\n");
             }
 
         }

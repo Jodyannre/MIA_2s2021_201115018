@@ -22,7 +22,7 @@ void obj_mkdisk::mostrardatos(obj_mkdisk *disco){
 int obj_mkdisk::ejecutar(){
     FILE *archivo; //Archivo binario que simulara el disco
     MBR mbr;
-    printf(this->path.c_str());
+    //printf(this->path.c_str());
     char buffer[1024];
     int unidad = 0;
 
@@ -67,6 +67,16 @@ int obj_mkdisk::ejecutar(){
     string pathTemp = this->path.substr(0,pos);
     verificarRuta(pathTemp);
 
+    //Verificar que no haya un disco con el mismo nombre
+    archivo = fopen(this->path.c_str(),"rb+");
+
+    if (archivo != NULL){
+        //Ya existe un disco con el mismo nombre
+        cout<<"Error, ya existe un disco con ese nombre."<<endl;
+        return -1;
+    }
+
+
     //Creando archivo
     archivo = fopen(this->path.c_str(),"wb");
     //Llenando el buffer del tamano del disco
@@ -76,7 +86,7 @@ int obj_mkdisk::ejecutar(){
 
     if (unidad == 1){
         //Kilobytes
-        printf("llenado kilos");
+        //printf("llenado kilos");
         for (int i = 0 ; i< this->size; i++){
             fwrite(&buffer,1024,1,archivo);
         }
@@ -84,7 +94,7 @@ int obj_mkdisk::ejecutar(){
 
     }else{
         //Megabytes
-        printf("llenado megas");
+        //printf("llenado megas");
         for (int i = 0 ; i< this->size*1024; i++){
             fwrite(&buffer,1024,1,archivo);
         }
@@ -143,9 +153,9 @@ int obj_mkdisk::ejecutar(){
             fseek(archivo,0,SEEK_SET);
             fwrite(&mbr, sizeof(MBR), 1, archivo);
             fclose(archivo);
-            printf("DISCO CREADO CORRECTAMENTE \nSE AGREGO EL MBR DE MANERA CORRECTA\n");
+            cout<<"Disco creado correctamente."<<endl;
         }else{
-            printf("Error!\n No se puede acceder al disco, MBR no creado\n");
+            //cout<<"Error, el disco no se pudo crear."<<endl;
         }
 
 
@@ -170,12 +180,12 @@ void obj_mkdisk::verificarRuta(string ruta){
 
     if(!dir.exists())
         {
-            qDebug() << "Creating " << path << "directory";
+            //qDebug() << "Se creo el directorio " << path";
             dir.mkpath(path);
         }
         else
         {
-            //qDebug() << path << " already exists";
+            //qDebug() << path << " ya existe.";
      }
 
 }

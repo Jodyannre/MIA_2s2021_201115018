@@ -4,6 +4,8 @@
 #include <string>
 #include "qdebug.h"
 #include <iostream>
+#include "string"
+#include "iostream"
 #include "obj_mkdisk.h"
 #include "obj_rmdisk.h"
 #include "obj_fdisk.h"
@@ -40,6 +42,17 @@ extern int yylineno; //linea actual donde se encuentra el parser (analisis lexic
 extern int columna; //columna actual donde se encuentra el parser (analisis lexico) lo maneja BISON
 extern char *yytext; //lexema actual donde esta el parser (analisis lexico) lo maneja BISON
 
+std::string formatear(std::string texto){
+    int validador = texto.find("\"");
+    if (validador != -1){
+        texto = texto.replace(validador,1,"");
+        validador = texto.find("\"");
+        texto = texto.replace(validador,1,"");
+        //std::cout<<texto<<std::endl;
+        return texto;
+    }
+    return texto;
+}
 
 int yyerror(const char* mens)
 {
@@ -93,6 +106,7 @@ class obj_umount *umount;
 
 int numero;
 char caracter[1];
+
 }
 //TERMINALES DE TIPO TEXT, SON STRINGS
 
@@ -205,7 +219,7 @@ char caracter[1];
 %type<exec>         COMANDO_EXEC;
 %type<mkfs>         COMANDO_MKFS;
 %type<rep>          COMANDO_REP;
-
+%type<pause>        COMANDO_PAUSE
 //%type<cat>      COMANDO_CAT
 //%type<chgrp>    COMANDO_CHGRP
 //%type<chmod>    COMANDO_CHMOD
@@ -220,7 +234,7 @@ char caracter[1];
 //%type<mkgrp>    COMANDO_MKGRP
 //%type<mkusr>    COMANDO_MKUSR
 //%type<mv>       COMANDO_MV
-//%type<pause>    COMANDO_PAUSE
+
 //%type<recovery> COMANDO_RECOVERY
 //%type<ren>      COMANDO_REN
 
@@ -249,6 +263,12 @@ LEXPA
 |       pmkfs       COMANDO_MKFS    {$2->ejecutar();}
 |       pexec       COMANDO_EXEC    {$2->ejecutar();}
 |       prep        COMANDO_REP     {$2->ejecutar();}
+|       pPause      COMANDO_PAUSE
+{
+    obj_pause *disco = new obj_pause();
+    disco->ejecutar();
+}
+|
 //|       pcat        COMANDO_CAT
 //|       pchgrp      COMANDO_CHGRP
 //|       pchmod      COMANDO_CHMOD
@@ -264,7 +284,7 @@ LEXPA
 //|       pmkgrp      COMANDO_MKGRP
 //|       pmkusr      COMANDO_MKUSR
 //|       pmv         COMANDO_MV
-//|       pPause      COMANDO_PAUSE
+
 //|       precovery   COMANDO_RECOVERY
 //|       pren        COMANDO_REN
 //|       prm         COMANDO_RM
@@ -287,12 +307,15 @@ LEXPA
 COMANDO_MKDISK
 :	COMANDO_MKDISK menos psize igual entero {int tam=atoi($5); $1->size=tam;  $$=$1;}
 |	menos psize igual entero {int tam=atoi($4); obj_mkdisk *disco=new obj_mkdisk(); disco->size=tam; $$=disco;}
+
 |	COMANDO_MKDISK menos pF igual COMANDO_AJUSTE {$1->f =$5; $$=$1;}
 |	menos pF igual COMANDO_AJUSTE {int ajuste=$4; obj_mkdisk *disco=new obj_mkdisk(); disco->f=ajuste;  $$=disco;}
-|	COMANDO_MKDISK menos pPath igual tpath {$1->path = $5;$$=$1;}
-|	COMANDO_MKDISK menos pPath igual cadena {$1->path = $5; $$=$1;}
-|	menos pPath igual tpath {obj_mkdisk *disco=new obj_mkdisk(); disco->path=$4;  $$=disco;}
-|	menos pPath igual cadena {obj_mkdisk *disco=new obj_mkdisk(); disco->path=$4;  $$=disco;}
+
+|	COMANDO_MKDISK menos pPath igual tpath {$1->path = formatear($5);$$=$1;}
+|	COMANDO_MKDISK menos pPath igual cadena {$1->path = formatear($5); $$=$1;}
+
+|	menos pPath igual tpath {obj_mkdisk *disco=new obj_mkdisk(); disco->path=formatear($4);  $$=disco;}
+|	menos pPath igual cadena {obj_mkdisk *disco=new obj_mkdisk(); disco->path=formatear($4);  $$=disco;}
 
 
 |	COMANDO_MKDISK menos pU igual pK {$1->u = $5; $$=$1;}
@@ -318,8 +341,9 @@ COMANDO_MKDISK_UNIDAD
 
 
 COMANDO_RMDISK
-:   menos pPath igual tpath {obj_rmdisk *disco=new obj_rmdisk();disco->path=$4; $$=disco;}
-
+:   menos pPath igual tpath {obj_rmdisk *disco=new obj_rmdisk();disco->path=formatear($4); $$=disco;}
+|   menos pPath igual cadena {obj_rmdisk *disco=new obj_rmdisk();disco->path=formatear($4); $$=disco;}
+;
 
 COMANDO_FDISK
 :   COMANDO_FDISK menos psize igual entero {int tam =atoi($5); $1->size = tam;$$=$1;}
@@ -333,8 +357,11 @@ COMANDO_FDISK
 |   menos pU igual pK {obj_fdisk *disco=new obj_fdisk();disco->u = 1;$$=disco;}
 |   menos pU igual pM {obj_fdisk *disco=new obj_fdisk();disco->u = 2;$$=disco;}
 
-|   COMANDO_FDISK menos pPath igual tpath {$1->path = $5; $$ = $1;}
-|   menos pPath igual tpath {obj_fdisk *disco=new obj_fdisk(); disco->path =$4;$$ = disco;}
+|   COMANDO_FDISK menos pPath igual tpath {$1->path = formatear($5); $$ = $1;}
+|   menos pPath igual tpath {obj_fdisk *disco=new obj_fdisk(); disco->path =formatear($4);$$ = disco;}
+
+|   COMANDO_FDISK menos pPath igual cadena {$1->path = formatear($5); $$ = $1;}
+|   menos pPath igual cadena {obj_fdisk *disco=new obj_fdisk(); disco->path =formatear($4);$$ = disco;}
 
 
 |   COMANDO_FDISK menos ptype igual pP {$1->type = 0; $$ = $1;}
@@ -356,8 +383,11 @@ COMANDO_FDISK
 |   menos pdelete igual full {obj_fdisk *disco=new obj_fdisk(); disco->eliminar = 1;disco->tipo_eliminar =1; $$=disco;}
 
 
-|   COMANDO_FDISK menos pname igual identificador {$1->name = $5; $$=$1;}
-|   menos pname igual identificador {obj_fdisk *disco=new obj_fdisk(); disco->name = $4; $$=disco;}
+|   COMANDO_FDISK menos pname igual identificador {$1->name = formatear($5); $$=$1;}
+|   menos pname igual identificador {obj_fdisk *disco=new obj_fdisk(); disco->name = formatear($4); $$=disco;}
+
+|   COMANDO_FDISK menos pname igual cadena {$1->name = formatear($5); $$=$1;}
+|   menos pname igual cadena {obj_fdisk *disco=new obj_fdisk(); disco->name = formatear($4); $$=disco;}
 
 |   COMANDO_FDISK menos padd igual entero {$1->size = atoi($5);$1->add = 1; $$=$1;}
 |   menos padd igual entero {obj_fdisk *disco=new obj_fdisk(); disco->size = atoi($4);disco->add = 1; $$=disco;}
@@ -384,26 +414,38 @@ UNIDAD_PARTICION
 */
 
 COMANDO_MOUNT
-:   COMANDO_MOUNT menos pPath igual tpath {$1->path = $5; $$ = $1;}
-|   menos pPath igual tpath {obj_mount *disco=new obj_mount(); disco->path = $4; $$ = disco;}
-|   COMANDO_MOUNT menos pname igual identificador {$1->name = $5; $$ = $1;}
-|   menos pname igual identificador {obj_mount *disco=new obj_mount(); disco->name = $4; $$ = disco;}
+:   COMANDO_MOUNT menos pPath igual tpath {$1->path = formatear($5); $$ = $1;}
+|   menos pPath igual tpath {obj_mount *disco=new obj_mount(); disco->path = formatear($4); $$ = disco;}
+
+|   COMANDO_MOUNT menos pPath igual cadena {$1->path = formatear($5); $$ = $1;}
+|   menos pPath igual cadena {obj_mount *disco=new obj_mount(); disco->path = formatear($4); $$ = disco;}
+
+|   COMANDO_MOUNT menos pname igual identificador {$1->name = formatear($5); $$ = $1;}
+|   menos pname igual identificador {obj_mount *disco=new obj_mount(); disco->name = formatear($4); $$ = disco;}
+
+|   COMANDO_MOUNT menos pname igual cadena {$1->name = formatear($5); $$ = $1;}
+|   menos pname igual cadena {obj_mount *disco=new obj_mount(); disco->name = formatear($4); $$ = disco;}
 ;
 
 
 COMANDO_UMOUNT
-:   menos pid igual identificador {obj_umount *disco=new obj_umount(); disco->id=$4; $$ = disco;}
+:   menos pid igual identificador {obj_umount *disco=new obj_umount(); disco->id=formatear($4); $$ = disco;}
+|   menos pid igual cadena {obj_umount *disco=new obj_umount(); disco->id=formatear($4); $$ = disco;}
 ;
 
 COMANDO_EXEC
-:   menos pPath igual tpath {obj_exec *disco=new obj_exec(); disco->path=$4; $$=disco;}
+:   menos pPath igual tpath {obj_exec *disco=new obj_exec(); disco->path=formatear($4); $$=disco;}
+|   menos pPath igual cadena {obj_exec *disco=new obj_exec(); disco->path=formatear($4); $$=disco;}
 ;
 
 
 
 COMANDO_MKFS
-:   COMANDO_MKFS menos pid igual identificador {$1->id = $5; $$ = $1;}
-|   menos pid igual identificador {obj_mkfs *disco = new obj_mkfs(); disco->id = $4; $$ = disco;}
+:   COMANDO_MKFS menos pid igual identificador {$1->id = formatear($5); $$ = $1;}
+|   menos pid igual identificador {obj_mkfs *disco = new obj_mkfs(); disco->id = formatear($4); $$ = disco;}
+
+|   COMANDO_MKFS menos pid igual cadena {$1->id = formatear($5); $$ = $1;}
+|   menos pid igual cadena {obj_mkfs *disco = new obj_mkfs(); disco->id = formatear($4); $$ = disco;}
 
 |   COMANDO_MKFS menos ptype igual fast {$1->type = 0; $$ = $1;}
 |   menos ptype igual fast {obj_mkfs *disco = new obj_mkfs(); disco->type = 0; $$ = disco;}
@@ -430,12 +472,17 @@ COMANDO_REP
 |   menos pname igual disk {obj_rep *disco = new obj_rep();disco->name = "disk"; $$ = disco;}
 
 
-|   COMANDO_REP menos pPath igual tpath {$1->path = $5; $$ = $1;}
-|   menos pPath igual tpath {obj_rep *disco = new obj_rep();disco->path = $4; $$ = disco;}
+|   COMANDO_REP menos pPath igual tpath {$1->path = formatear($5); $$ = $1;}
+|   menos pPath igual tpath {obj_rep *disco = new obj_rep();disco->path = formatear($4); $$ = disco;}
 
+|   COMANDO_REP menos pPath igual cadena {$1->path = formatear($5); $$ = $1;}
+|   menos pPath igual cadena {obj_rep *disco = new obj_rep();disco->path = formatear($4); $$ = disco;}
 
-|   COMANDO_REP menos pid igual identificador {$1->id = $4; $$ = $1;}
-|   menos pid igual identificador {obj_rep *disco = new obj_rep();disco->id = $4; $$ = disco;}
+|   COMANDO_REP menos pid igual identificador {$1->id = formatear($5); $$ = $1;}
+|   menos pid igual identificador {obj_rep *disco = new obj_rep();disco->id = formatear($4); $$ = disco;}
+
+|   COMANDO_REP menos pid igual cadena {$1->id = formatear($5); $$ = $1;}
+|   menos pid igual cadena {obj_rep *disco = new obj_rep();disco->id = formatear($4); $$ = disco;}
 
 /*
 |   COMANDO_REP menos pruta igual identificador {}
@@ -444,7 +491,12 @@ COMANDO_REP
 |   COMANDO_REP menos proot igual identificador {}
 |   menos proot igual identificador {}
 */
+
+COMANDO_PAUSE
+:   {obj_pause *disco = new obj_pause(); $$ = disco;}
 ;
+
+
 
 
 

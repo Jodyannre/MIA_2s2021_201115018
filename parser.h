@@ -149,7 +149,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 59 "parser.y" /* yacc.c:1909  */
+#line 72 "parser.y" /* yacc.c:1909  */
 
 //se especifican los tipo de valores para los no terminales y lo terminales
 //char TEXT [256];
@@ -188,7 +188,8 @@ class obj_umount *umount;
 int numero;
 char caracter[1];
 
-#line 192 "parser.h" /* yacc.c:1909  */
+
+#line 193 "parser.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

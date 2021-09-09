@@ -28,7 +28,7 @@ int obj_mount::ejecutar(){
 
     //Verificar que el comando este correcto
     if (this->name == "" || this->path == ""){
-        cout<<"Error, al comando le faltan parametros."<<endl;
+        cout<<"Error, al comando le faltan parametros. \n"<<endl;
         return -1;
     }
 
@@ -130,6 +130,9 @@ int obj_mount::ejecutar(){
     //Actualizar los archivos montados
     fseek(archivo, 0, SEEK_SET);
     fwrite(&this->cmount,sizeof(Cmount),1,archivo);
+
+    //Imprimir las particiones montadas en pantalla
+    this->imprimirParticiones();
     fclose(archivo);
     return 0;
 }
@@ -150,7 +153,7 @@ int obj_mount::crearArchivo(){
     Cmount discos;
     Dmount disco;
     int sizeArray = sizeof(discos.disco)/sizeof(disco);
-    cout<<sizeArray<<endl;
+    //cout<<sizeArray<<endl;
     //Crear los slots para los discos que se van a montar
     for (int i=0; i<29;i++){
         Dmount dn;
@@ -168,8 +171,8 @@ int obj_mount::crearArchivo(){
         }
         discos.disco[i] = dn;
     }
-    cout<<sizeof(Cmount)<<endl;
-    cout<<sizeof(discos)<<endl;
+    //cout<<sizeof(Cmount)<<endl;
+    //cout<<sizeof(discos)<<endl;
 
     fseek(archivo,0,SEEK_SET);
     fwrite(&discos, sizeof(discos), 1, archivo);
@@ -201,7 +204,7 @@ Particion obj_mount::buscarParticion(){
 
     //Si el disco no existe retornara un null
     if (disco == NULL){
-        fclose(disco);
+        //fclose(disco);
         particion.part_start = -1;
         return particion;
     }
@@ -212,10 +215,10 @@ Particion obj_mount::buscarParticion(){
 
     //Buscar la particion
 
-    cout<<sizeName<<endl;
+    //cout<<sizeName<<endl;
     for (int i = 0; i<4; i++){
         while(this->mbr.mbr_partitions[i].part_name[j]!=NULL && j<=15){
-            nombrePart += this->mbr.mbr_partitions[i].part_name[j];
+            nombrePart += toupper(this->mbr.mbr_partitions[i].part_name[j]);
             j++;
         }
         j = 0;
@@ -224,6 +227,16 @@ Particion obj_mount::buscarParticion(){
             nombrePart += this->mbr.mbr_partitions[i].part_name[j];
         }
         */
+
+        //Todo a mayuscula
+        string nameTemp = "";
+        while(this->name[j]!=NULL && j<=15){
+            nameTemp += toupper(this->name[j]);
+            j++;
+        }
+        j = 0;
+        this->name = nameTemp;
+
         if (this->mbr.mbr_partitions[i].part_type == 'E'){
             posExtendida = i;
         }
@@ -258,7 +271,6 @@ Particion obj_mount::buscarParticion(){
             return particion;
         }
         while (true){
-            for (int i = 0; i<4; i++){
                 while(this->ebr.part_name[j]!= NULL && j<=15){
                     nombrePart += this->ebr.part_name[j];
                     j++;
@@ -274,22 +286,26 @@ Particion obj_mount::buscarParticion(){
                     break;
                 }else{
                     nombrePart = "";
+                    if (this->ebr.part_next == -1){
+                        //No hay mas particiones
+                        break;
+                    }
                     fseek(disco, this->ebr.part_next, SEEK_SET);
                     fread(&this->ebr,sizeof(EBR),1,disco);
                     if (this->ebr.part_status=='0'){
                         break;
                     }
                 }
-            }
             if (logicaEncontrada){
                 break;
             }
-
-
         }
 
         if (logicaEncontrada){
             particion.part_start = this->ebr.part_start;
+            particion.part_type = 'L';
+        }else{
+            particion.part_start = -2;
             particion.part_type = 'L';
         }
 
@@ -304,7 +320,7 @@ Particion obj_mount::buscarParticion(){
 int obj_mount::getCurrentDir(){
     char buffer[PATH_MAX];
     if (getcwd(buffer, sizeof(buffer)) != NULL) {
-        printf("El directorio actual es: %s\n", buffer);
+        //printf("El directorio actual es: %s\n", buffer);
         for (int i=0; i< sizeof(buffer);i++){
             if (i==88){
                 //Nada
@@ -316,7 +332,7 @@ int obj_mount::getCurrentDir(){
             this->currentDir+= buffer[i];
         }
         this->currentDir+= this->nombreArchivo;
-        cout<<this->currentDir<<endl;
+        //cout<<this->currentDir<<endl;
     } else {
         perror("Error, el directorio no existe.");
         return -1;
@@ -377,3 +393,21 @@ string obj_mount::nameToString(int disco, int particion){
 }
 
 
+void obj_mount::imprimirParticiones(){
+    //Recorrer la lista e ir imprimiendo todas las particiones
+    //this->cmount.disco[i]
+    string nombre,id,disco;
+    for (int i=0;i< 29;i++){
+        disco = this->cmount.disco[i].path;
+        if (this->cmount.disco[i].estado == 1){
+            for (int j=0;j<49;j++){
+                if (this->cmount.disco[i].particiones[j].estado == 1){
+                    id = this->cmount.disco[i].particiones[j].id;
+                    id = id.substr(0,id.length()-1);
+                    nombre = this->cmount.disco[i].particiones[j].name;
+                    cout<<disco<<"|"<<nombre<<"|"<<id<<endl;
+                }
+            }
+        }
+    }
+}

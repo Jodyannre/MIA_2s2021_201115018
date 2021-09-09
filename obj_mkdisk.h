@@ -6,6 +6,7 @@
 #include <QDebug>
 #include "estructuras.h"
 #include "time.h"
+#include "iostream"
 using namespace std;
 
 

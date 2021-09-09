@@ -26,6 +26,7 @@ public:
     int crearArchivo();
     bool estaMontada();
     int estaMontado();
+    void imprimirParticiones();
     string nameToString(int disco, int particion);
 
 
