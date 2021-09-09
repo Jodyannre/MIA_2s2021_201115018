@@ -1,18 +1,20 @@
 # Manual de usuario
 
-## Comandos funcionales
-```
-Exec
-Fdisk
-Mkdisk
-Mount
-Mkfs
-Login
-Rep
-Rmdisk
-Umount
-```
+#### Comandos funcionales
+* [Exec](#Exec)     
+* [Fdisk](#Fdisk)     
+* [Mkdisk](#Mkdisk)     
+* [Mount](#Mount)     
+* [Mkfs](#Mkfs)     
+* [Rep](#Rep)     
+* [Rmdisk](#Rmdisk)     
+* [Umount](#Umount)     
+
+
+<a name="Exec"/>
+
 ### Comando Exec
+
 *******
 **Descripcion**
 
@@ -27,6 +29,7 @@ Umount
 exec -path= rutaDelArchivo
 
 *******
+<a name="Fdisk"/>
 
 ### Comando Fdisk
 *******
@@ -62,6 +65,7 @@ fdisk add=tamaño u=unidad -path=rutaDisco -name=nombreParticion
 
 *******
 
+<a name="Mkdisk"/>
 
 ### Comando Mkdisk
 *******
@@ -86,6 +90,7 @@ Mkdisk -Size=tamañoDisco –u=unidadDisco -path=rutaDisco
 
 
 *******
+<a name="Mount"/>
 
 ### Comando Mount
 *******
@@ -105,6 +110,7 @@ Mkdisk -Size=tamañoDisco –u=unidadDisco -path=rutaDisco
 mount -path=rutaDisco -name=nombreParticion
 
 *******
+<a name="Mkfs"/>
 
 ### Comando Mkfs
 
@@ -126,6 +132,7 @@ mount -path=rutaDisco -name=nombreParticion
 mkfs -type=tipoFormateo -id=particionMontada
 
 *******
+<a name="Rep"/>
 
 ### Comando Rep
 
@@ -149,6 +156,7 @@ mkfs -type=tipoFormateo -id=particionMontada
 rep –id=particionMontada -Path=rutaReporte -name=nombreTipoReporte
 
 *******
+<a name="Rmdisk"/>
 
 ### Comando Rmdisk
 
@@ -168,6 +176,7 @@ rep –id=particionMontada -Path=rutaReporte -name=nombreTipoReporte
 rmDisk -path=direccionDisco
 
 *******
+<a name="Umount"/>
 
 ### Comando Umount
 
